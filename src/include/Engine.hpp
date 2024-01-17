@@ -28,19 +28,40 @@ class Engine {
 			if(this->rpm < minRPM) this->rpm = minRPM;
 			else if(this->rpm > maxRPM) this->rpm = maxRPM;
 		}
-		Vector2Df runCycle(const float deltaTime, const float airResConst, const float rollResConst, const float mass) {
+		Vector2Df runCycle(const float deltaTime, const float airResConst, const float rollResConst, const float mass, const bool isBreaking) {
+			// Speed
 			speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
 			if(speed != speed) speed = 0;
+			
+			// Direction Vector
 			Vector2Df directionVector = velocity / speed;	// The direction(unit) vector is found by dividing the vector by its magnitude
 			if(directionVector.x != directionVector.x || directionVector.y != directionVector.y) directionVector = Vector2Df(0.f, 1.f);
+			
+			// Traction Force Vector
 			Vector2Df traction = directionVector * getTorque(rpm);	// Calculate traction, direction * engineforce(torque)
 			if(traction.x != traction.x || traction.y != traction.y) traction = Vector2Df(directionVector.x * getTorque(rpm), directionVector.y * getTorque(rpm));
-			Vector2Df drag = -airResConst * velocity * speed;	// Calculate the air resistance
+			
+			// Breaking Force Vector
+			Vector2Df breaking;
+			if(isBreaking) breaking = directionVector * -120.f;	// Calculate the breaking force, direction * break force
+			else breaking = Vector2Df(0.f, 0.f);	// Car is not breaking, break force is 0
+
+			if(breaking.x != breaking.x || breaking.y != breaking.y) std::cerr << "Breaking force is NaN" << std::endl;
+
+			// Air Resistance Force Vector
+			Vector2Df drag = -airResConst * velocity * speed;	// Calculate the air resistance simply
 			if(drag.x != drag.x || drag.y != drag.y) drag = Vector2Df(0.f, 0.f);
+			
+			// Rolling Resistance Force Vector
 			Vector2Df rollDrag = -rollResConst * velocity;	// Calculate the rolling resistance(between wheel and ground)
 			if(rollDrag.x != rollDrag.x || rollDrag.y != rollDrag.y) rollDrag = Vector2Df(0.f, 0.f);
-			Vector2Df longForce = traction + drag + rollDrag;	// Calculate the total longtitudinal force, when in a straight line at a constant speed this is zero
+			
+			// Longitudual Force Vector
+			Vector2Df longForce = traction + breaking + drag + rollDrag;	// Calculate the total longtitudinal force, when in a straight line at a constant speed this is zero
+			
+			// Acceleration Vector
 			Vector2Df acceleration =  Vector2Df(longForce.x / mass, longForce.y / mass);	// Calculate acceleration by the force on the car * its mass
+			
 			// Integrate the acceleration to change velocity
 			velocity += (deltaTime * acceleration);
 			#ifdef DEBUG
