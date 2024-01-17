@@ -29,7 +29,29 @@ class Car {
 			position = Vector2Df(0.f, 0.f);
 		}
         void cycle(const float deltaTime) {
-			position += engine.get()->runCycle(deltaTime, airResConst, rollResConst, mass);
+			std::array<Vector2Df, 2> results = engine.get()->runCycle(deltaTime, airResConst, rollResConst, mass, false);
+			position = results[0];
+			calcWeightDistribution(results[0], results[1]);
+		}
+		void calcWeightDistribution(const Vector2Df velocity, const Vector2Df acceleration) {
+			/* Max friction, idk why this is useful just seen in the resource
+			float wheelFrictCoef = 10.f;
+			Vector2Df maxFrict = Vector2Df(wheelFrictCoef * mass * 0.98f, wheelFrictCoef * mass * 0.98f);
+			*/
+			const float frontOffsetCG = 1.5f;
+			const float rearOffsetCG = 5.5f;
+			const float wheelBase = 7.f;
+			const float groundOffsetCG = 2.f;
+
+			// Weight distribution
+			if(velocity.x == 0.f && velocity.y == 0.f){	// Stationary
+				float frontWeight = (rearOffsetCG / wheelBase) * mass * 0.98f;
+				float rearWeight = (frontOffsetCG / wheelBase) * mass * 0.98f;
+			} else {	// Accelerating/Decelerating
+				float accelerationMagnitude = std::sqrt(acceleration.x * acceleration.x + acceleration.y * acceleration.y);
+				float frontWeight = ((rearOffsetCG / wheelBase) * mass * 0.98f) - ((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
+				float rearWeight = ((frontOffsetCG / wheelBase) * mass * 0.98f) + ((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
+			}
 		}
 		Vector2Df position;
 		void setRPM(const float rpm) { engine.get() -> setRPM(rpm); }
