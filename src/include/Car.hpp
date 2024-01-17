@@ -29,7 +29,7 @@ class Car {
 			position = Vector2Df(0.f, 0.f);
 		}
         void cycle(const float deltaTime) {
-			std::array<Vector2Df, 2> results = engine.get()->runCycle(deltaTime, airResConst, rollResConst, mass, false);
+			std::array<Vector2Df, 2> results = engine.get()->runCycle(deltaTime, airResConst, rollResConst, mass, 0.40f, false);
 			position = results[0];
 			calcWeightDistribution(results[0], results[1]);
 		}

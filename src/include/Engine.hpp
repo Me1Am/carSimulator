@@ -28,7 +28,11 @@ class Engine {
 			if(this->rpm < minRPM) this->rpm = minRPM;
 			else if(this->rpm > maxRPM) this->rpm = maxRPM;
 		}
-		std::array<Vector2Df, 2> runCycle(const float deltaTime, const float airResConst, const float rollResConst, const float mass, const bool isBreaking) {
+		float calcEngineForce(const float wheelRadius) {
+			float gearRatio = 15.76f;
+			return getTorque() * gearRatio * diffRatio * transEff / wheelRadius;
+		}
+		std::array<Vector2Df, 2> runCycle(const float deltaTime, const float airResConst, const float rollResConst, const float mass, const float wheelRadius, const bool isBreaking) {
 			// Speed
 			speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
 			if(speed != speed) speed = 0;
@@ -38,8 +42,8 @@ class Engine {
 			if(directionVector.x != directionVector.x || directionVector.y != directionVector.y) directionVector = Vector2Df(0.f, 1.f);
 			
 			// Traction Force Vector
-			Vector2Df traction = directionVector * getTorque();	// Calculate traction, direction * engineforce
-			if(traction.x != traction.x || traction.y != traction.y) traction = Vector2Df(directionVector.x * getTorque(), directionVector.y * getTorque());
+			Vector2Df traction = directionVector * calcEngineForce(wheelRadius);	// Calculate traction, direction * engineforce
+			if(traction.x != traction.x || traction.y != traction.y) traction = Vector2Df(directionVector.x * calcEngineForce(wheelRadius), directionVector.y * calcEngineForce(wheelRadius));
 			
 			// Breaking Force Vector
 			Vector2Df breaking;
@@ -69,6 +73,7 @@ class Engine {
 					"RPM: " + std::to_string(rpm)
 					+ "\nTorque: " + std::to_string(getTorque())
 					+ "\nSpeed: " + std::to_string(speed)
+					+ "\nEngine Force: " + std::to_string(calcEngineForce(wheelRadius))
 					+ "\nDirection Vector: " + std::to_string(directionVector.x) + ", " + std::to_string(directionVector.y)
 					+ "\nTraction: " + std::to_string(traction.x) + ", " + std::to_string(traction.y)
 					+ "\nAir Resistance: " + std::to_string(drag.x) + ", " + std::to_string(drag.y)
@@ -90,6 +95,8 @@ class Engine {
 		// Transmission Details
 		bool hasHL;
 		int reverseGears;
+		float transEff = 0.80f;
+		float diffRatio = 2.30f;
 		//float gears[];
 
 		// Running Variables
