@@ -30,28 +30,35 @@ class Car {
 		}
         void cycle(const float deltaTime) {
 			std::array<Vector2Df, 2> results = engine.get()->runCycle(deltaTime, airResConst, rollResConst, mass, 0.40f, false);
-			position = results[0];
+			position += results[0];
 			calcWeightDistribution(results[0], results[1]);
 		}
 		void calcWeightDistribution(const Vector2Df velocity, const Vector2Df acceleration) {
-			/* Max friction, idk why this is useful just seen in the resource
-			float wheelFrictCoef = 10.f;
-			Vector2Df maxFrict = Vector2Df(wheelFrictCoef * mass * 0.98f, wheelFrictCoef * mass * 0.98f);
-			*/
+			// Max friction
+			float wheelFrictCoef = 1.0f;
 			const float frontOffsetCG = 1.5f;
 			const float rearOffsetCG = 5.5f;
 			const float wheelBase = 7.f;
 			const float groundOffsetCG = 2.f;
+			float frontWeight;
+			float rearWeight;
 
 			// Weight distribution
 			if(velocity.x == 0.f && velocity.y == 0.f){	// Stationary
-				float frontWeight = (rearOffsetCG / wheelBase) * mass * 0.98f;
-				float rearWeight = (frontOffsetCG / wheelBase) * mass * 0.98f;
+				frontWeight = (rearOffsetCG / wheelBase) * mass * 0.98f;
+				rearWeight = (frontOffsetCG / wheelBase) * mass * 0.98f;
 			} else {	// Accelerating/Decelerating
 				float accelerationMagnitude = std::sqrt(acceleration.x * acceleration.x + acceleration.y * acceleration.y);
-				float frontWeight = ((rearOffsetCG / wheelBase) * mass * 0.98f) - ((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
-				float rearWeight = ((frontOffsetCG / wheelBase) * mass * 0.98f) + ((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
+				frontWeight = ((rearOffsetCG / wheelBase) * mass * 0.98f) - ((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
+				rearWeight = ((frontOffsetCG / wheelBase) * mass * 0.98f) + ((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
 			}
+
+			/* Calculate the maximum friction force for the wheel sets
+			 * If the force being exerted on either wheelset is greater
+			 * Then the wheels spinout, reducing traction and thus force
+			 */
+			float frontMaxFrict = wheelFrictCoef * frontWeight;
+			float rearMaxFrict = wheelFrictCoef * rearWeight;
 		}
 		Vector2Df position;
 		void setRPM(const float rpm) { engine.get() -> setRPM(rpm); }

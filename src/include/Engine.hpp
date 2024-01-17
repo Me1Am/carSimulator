@@ -32,6 +32,16 @@ class Engine {
 			float gearRatio = 15.76f;
 			return getTorque() * gearRatio * diffRatio * transEff / wheelRadius;
 		}
+		/**
+		 * @brief Runs through one physics cycle
+		 * @param deltaTime A float representing the time since last cycle
+		 * @param airResConst A float representing the air resistance constant
+		 * @param rollResConst A float representing the rolling resistance constant(30x 'airResConst')
+		 * @param mass A float representing the total mass of the car
+		 * @param wheelRadius A float representing the radius of the wheels, used in 'calcEngineForce'
+		 * @param isBreaking A bool representing the status of the breaks
+		 * @return Returns an array of Vector2Dfs, velocity adjusted to 'deltaTime' and the acceleration
+		 */
 		std::array<Vector2Df, 2> runCycle(const float deltaTime, const float airResConst, const float rollResConst, const float mass, const float wheelRadius, const bool isBreaking) {
 			// Speed
 			speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
