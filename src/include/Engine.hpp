@@ -28,7 +28,7 @@ class Engine {
 			if(this->rpm < minRPM) this->rpm = minRPM;
 			else if(this->rpm > maxRPM) this->rpm = maxRPM;
 		}
-		Vector2Df runCycle(const float deltaTime, const float airResConst, const float rollResConst, const float mass, const bool isBreaking) {
+		std::array<Vector2Df, 2> runCycle(const float deltaTime, const float airResConst, const float rollResConst, const float mass, const bool isBreaking) {
 			// Speed
 			speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
 			if(speed != speed) speed = 0;
@@ -79,7 +79,7 @@ class Engine {
 					+ "\n"
 				) << std::endl;
 			#endif
-			return deltaTime * velocity;
+			return {(deltaTime * velocity), acceleration};
 		}
 	private:
 		// Engine Details
