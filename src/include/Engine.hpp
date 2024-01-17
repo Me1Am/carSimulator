@@ -22,7 +22,7 @@ class Engine {
 			this->reverseGears = reverseGears;
 			this->hasHL = hasHL;
 		}
-		float getTorque(const float rpm) { return (rpm > minRPM && rpm < 1500.f) ? 2788.f : -rpm + 4745.f; }
+		float getTorque() { return (rpm > minRPM && rpm < 1500.f) ? 2788.f : -rpm + 4745.f; }
 		void setRPM(const float rpm) {
 			this->rpm = rpm;
 			if(this->rpm < minRPM) this->rpm = minRPM;
@@ -38,8 +38,8 @@ class Engine {
 			if(directionVector.x != directionVector.x || directionVector.y != directionVector.y) directionVector = Vector2Df(0.f, 1.f);
 			
 			// Traction Force Vector
-			Vector2Df traction = directionVector * getTorque(rpm);	// Calculate traction, direction * engineforce(torque)
-			if(traction.x != traction.x || traction.y != traction.y) traction = Vector2Df(directionVector.x * getTorque(rpm), directionVector.y * getTorque(rpm));
+			Vector2Df traction = directionVector * getTorque();	// Calculate traction, direction * engineforce
+			if(traction.x != traction.x || traction.y != traction.y) traction = Vector2Df(directionVector.x * getTorque(), directionVector.y * getTorque());
 			
 			// Breaking Force Vector
 			Vector2Df breaking;
@@ -67,7 +67,7 @@ class Engine {
 			#ifdef DEBUG
 				std::cout << (
 					"RPM: " + std::to_string(rpm)
-					+ "\nTorque: " + std::to_string(getTorque(rpm))
+					+ "\nTorque: " + std::to_string(getTorque())
 					+ "\nSpeed: " + std::to_string(speed)
 					+ "\nDirection Vector: " + std::to_string(directionVector.x) + ", " + std::to_string(directionVector.y)
 					+ "\nTraction: " + std::to_string(traction.x) + ", " + std::to_string(traction.y)
