@@ -1,7 +1,10 @@
-#include "Engine.hpp"
 #include "Vector2D.hpp"
 #include <iostream>
 #include <memory>
+#include <cmath>
+#include <array>
+
+#define MAGNITUDE(v) (std::sqrt(v.x * v.x + v.y * v.y))
 
 class Car {
     public:
@@ -56,7 +59,7 @@ class Car {
 		 */
 		void runCycle(const float deltaTime, const float airResConst, const float rollResConst, const float mass, const float wheelRadius, const float breakStatus) {
 			// Speed
-			speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+			speed = MAGNITUDE(velocity);
 			if(speed != speed) speed = 0;
 			
 			// Direction Vector
@@ -64,8 +67,8 @@ class Car {
 			if(directionVector.x != directionVector.x || directionVector.y != directionVector.y) directionVector = Vector2Df(0.f, 1.f);
 			
 			// Traction Force Vector
-			Vector2Df traction = directionVector * calcEngineForce(wheelRadius);	// Calculate traction, direction * engineforce
-			if(traction.x != traction.x || traction.y != traction.y) traction = Vector2Df(directionVector.x * calcEngineForce(wheelRadius), directionVector.y * calcEngineForce(wheelRadius));
+			Vector2Df traction = directionVector * calcEngineForce();	// Calculate traction, direction * engineforce
+			if(traction.x != traction.x || traction.y != traction.y) traction = Vector2Df(directionVector.x * calcEngineForce(), directionVector.y * calcEngineForce());
 			
 			// Breaking Force Vector
 			Vector2Df breaking;
@@ -85,10 +88,15 @@ class Car {
 			Vector2Df longForce = traction + breaking + drag + rollDrag;	// Calculate the total longtitudinal force, when in a straight line at a constant speed this is zero
 			
 			// Acceleration Vector
-			Vector2Df acceleration =  Vector2Df(longForce.x / mass, longForce.y / mass);	// Calculate acceleration by the force on the car * its mass
+			Vector2Df acceleration = Vector2Df(longForce.x / mass, longForce.y / mass);	// Calculate acceleration by the force on the car * its mass
 			
 			// Get maximum force on wheelsets
 			std::array<float, 2> results = calcWheelMaxForce(acceleration);
+			if(results[0] > MAGNITUDE(traction) || results[1] > MAGNITUDE(traction)){
+				traction *= 0.75f;	// Wheels are spinning freely, decrease traction
+				longForce = traction + breaking + drag + rollDrag;	// Update 'longForce'
+				acceleration = Vector2Df(longForce.x / mass, longForce.y / mass); // Update 'acceleration'
+			}
 
 			// Integrate the acceleration to change velocity
 			velocity += (deltaTime * acceleration);
@@ -98,7 +106,7 @@ class Car {
 					"RPM: " + std::to_string(rpm)
 					+ "\nTorque: " + std::to_string(getTorque())
 					+ "\nSpeed: " + std::to_string(speed)
-					+ "\nEngine Force: " + std::to_string(calcEngineForce(wheelRadius))
+					+ "\nEngine Force: " + std::to_string(calcEngineForce())
 					+ "\nDirection Vector: " + std::to_string(directionVector.x) + ", " + std::to_string(directionVector.y)
 					+ "\nTraction: " + std::to_string(traction.x) + ", " + std::to_string(traction.y)
 					+ "\nAir Resistance: " + std::to_string(drag.x) + ", " + std::to_string(drag.y)
@@ -125,7 +133,7 @@ class Car {
 				frontWeight = (rearOffsetCG / wheelBase) * mass * 0.98f;
 				rearWeight = (frontOffsetCG / wheelBase) * mass * 0.98f;
 			} else {	// Accelerating/Decelerating
-				float accelerationMagnitude = std::sqrt(acceleration.x * acceleration.x + acceleration.y * acceleration.y);
+				float accelerationMagnitude = MAGNITUDE(acceleration);
 				frontWeight = ((rearOffsetCG / wheelBase) * mass * 0.98f) - ((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
 				rearWeight = ((frontOffsetCG / wheelBase) * mass * 0.98f) + ((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
 			}
@@ -144,7 +152,11 @@ class Car {
 			if(this->rpm < minRPM) this->rpm = minRPM;
 			else if(this->rpm > maxRPM) this->rpm = maxRPM;
 		}
-		float calcEngineForce(const float wheelRadius) {
+		/**
+		 * @brief Calculates the force the engine is producing on the ground
+		 * @return Returns the force the wheels are exerting
+		*/
+		float calcEngineForce() {
 			float gearRatio = 15.76f;
 			return getTorque() * gearRatio * diffRatio * transEff / wheelRadius;
 		}
