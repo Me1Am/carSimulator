@@ -1,0 +1,47 @@
+Traction Torque: Friction, an angular force that the road applies to the wheel
+Drive Torque: An angular force that the engine creates
+Drive Force: The force the wheels exert on the road
+Traction Force: A linear/longitudinal force that moves the car
+
+
+Drive Torque: (engineTorque * gearRatio * diffRatio * efficiency)
+Drive Force: driveTorque / wheelRadius
+Engine RPM: wheelRotSec * gearRatio * diffRatio * 60 / 2 pi
+Wheel r/s(easy): speed(m/s) / wheelRadius
+	Less accurate, unable to simulate wheel spinouts, etc.
+Wheel r/s: wheelRotSec + (((driveTorque + breakTorque + tractionTorque) / inertia) * time)
+	break and traction torque are opposite to the drive torque(usually negative)
+
+What to track:
+	Drive wheel rpms and how it changes over time due to the torque upon them
+
+Non-Driving Wheels:
+	Angular Velocity: speed / 2pi * radius
+Driving Wheels: Slightly faster than "free" wheels
+	Rotating slightly faster means they always slip the slipping causes friction 
+	 in the opposite of the slip, causing movement, traction or longitudinal force.
+	 The traction force is dependent on the amount of slip. The traction torque on
+	 the wheels is the angular force the road applies to the wheel, or friction, 
+	 which acts in opposition to the drive torque
+	Traction Torque: 
+	Slip: ((wheel angular velocity) * (radius) - speed(m/s)) / abs(speed(m/s))
+	When braking with locked wheels the slip-ratio is -1, more slip occurs past 1
+		
+Net Torque: The net torque acting on a wheel's axle
+	torque = driveTorque + tractionTorque(both wheels) + brakeTorque
+	angularAccel = torque / wheelInertia
+		wheelInertia ~= mass * radius^2 / 2
+		
+normalized = force / load
+force = normalized * load
+
+		
+IN TOTAL:
+	Free Wheels:
+		Angular Velocity: speed / 2pi * radius
+	Drive Wheels:
+		Traction Force: normalizedForce * load(weight on wheel)
+		Slip-Ratio: ((wheel angular velocity) * (radius) - speed(m/s)) / abs(speed(m/s))
+		Net Torque: driveTorque + tractionTorque(both wheels) + brakeTorque
+		Angular Acceleration = torque / (mass * radius^2 / 2)
+		Angular Velocity: angularVelocity + angularAccel * deltaTime
