@@ -1,12 +1,11 @@
 #include "Engine.hpp"
-//#include "Vector2D.hpp"
+#include "Vector2D.hpp"
 #include <iostream>
 #include <memory>
 
 class Car {
     public:
         Car() {
-			engine.reset(new Engine());
 			position = Vector2Df(0.f, 0.f);
 		}
 		/** Constructor 
@@ -21,25 +20,103 @@ class Car {
 		 * @brief Constructor that sets all required variables
 		 * @note 'hasHL' does not affect reverse gear count, H-L gears are sub gears
 		 */
-		Car(const float mass, const float airResConst, const float rollResConst, const int maxRPM, const int minRPM, const int maxTorque, const int reverseGears, const bool hasHL) {
-			engine.reset(new Engine(maxRPM, minRPM, maxTorque, reverseGears, hasHL));
+		Car(const float mass, const float wheelRadius, const float frontOffsetCG, const float rearOffsetCG, const float wheelBase, 
+			const float groundOffsetCG, const float airResConst, const float rollResConst, const float wheelFrictCoef, 
+			const int maxRPM, const int minRPM, const int maxTorque, const int reverseGears, const bool hasHL) {
+			// Constant Car Variables
 			this->mass = mass;
+			this->wheelFrictCoef = wheelFrictCoef;
+			this->frontOffsetCG = frontOffsetCG;
+			this->rearOffsetCG = rearOffsetCG;
+			this->wheelBase = wheelBase;
+			this->groundOffsetCG = groundOffsetCG;
+			this->wheelRadius = wheelRadius;
 			this->airResConst = airResConst;
 			this->rollResConst = rollResConst;
+
+			// Constant Engine Variables
+			this->maxRPM = maxRPM;
+			this->minRPM = minRPM;
+			this->maxTorque = maxTorque;
+			this->reverseGears = reverseGears;
+			this->hasHL = hasHL;
+			this->transEff = 0.80f;
+			this->diffRatio = 2.30f;
+
 			position = Vector2Df(0.f, 0.f);
 		}
-        void cycle(const float deltaTime) {
-			std::array<Vector2Df, 2> results = engine.get()->runCycle(deltaTime, airResConst, rollResConst, mass, 0.40f, false);
-			position += results[0];
-			calcWeightDistribution(results[0], results[1]);
+		/**
+		 * @brief Runs through one physics cycle
+		 * @param deltaTime A float representing the time since last cycle
+		 * @param airResConst A float representing the air resistance constant
+		 * @param rollResConst A float representing the rolling resistance constant(30x 'airResConst')
+		 * @param mass A float representing the total mass of the car
+		 * @param wheelRadius A float representing the radius of the wheels, used in 'calcEngineForce'
+		 * @param breakStatus A float representing the status of the breaks from 0-1 inclusive
+		 */
+		void runCycle(const float deltaTime, const float airResConst, const float rollResConst, const float mass, const float wheelRadius, const float breakStatus) {
+			// Speed
+			speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+			if(speed != speed) speed = 0;
+			
+			// Direction Vector
+			Vector2Df directionVector = velocity / speed;	// The direction(unit) vector is found by dividing the vector by its magnitude
+			if(directionVector.x != directionVector.x || directionVector.y != directionVector.y) directionVector = Vector2Df(0.f, 1.f);
+			
+			// Traction Force Vector
+			Vector2Df traction = directionVector * calcEngineForce(wheelRadius);	// Calculate traction, direction * engineforce
+			if(traction.x != traction.x || traction.y != traction.y) traction = Vector2Df(directionVector.x * calcEngineForce(wheelRadius), directionVector.y * calcEngineForce(wheelRadius));
+			
+			// Breaking Force Vector
+			Vector2Df breaking;
+			if(breakStatus >= 0.f) breaking = directionVector * -120.f;	// Calculate the breaking force, direction * break force
+			else breaking = Vector2Df(0.f, 0.f);	// Car is not breaking, break force is 0
+			if(breaking.x != breaking.x || breaking.y != breaking.y) breaking = Vector2Df(0.f, 0.f);
+
+			// Air Resistance Force Vector
+			Vector2Df drag = -airResConst * velocity * speed;	// Calculate the air resistance simply
+			if(drag.x != drag.x || drag.y != drag.y) drag = Vector2Df(0.f, 0.f);
+			
+			// Rolling Resistance Force Vector
+			Vector2Df rollDrag = -rollResConst * velocity;	// Calculate the rolling resistance(between wheel and ground)
+			if(rollDrag.x != rollDrag.x || rollDrag.y != rollDrag.y) rollDrag = Vector2Df(0.f, 0.f);
+			
+			// Longitudual Force Vector
+			Vector2Df longForce = traction + breaking + drag + rollDrag;	// Calculate the total longtitudinal force, when in a straight line at a constant speed this is zero
+			
+			// Acceleration Vector
+			Vector2Df acceleration =  Vector2Df(longForce.x / mass, longForce.y / mass);	// Calculate acceleration by the force on the car * its mass
+			
+			// Get maximum force on wheelsets
+			std::array<float, 2> results = calcWheelMaxForce(acceleration);
+
+			// Integrate the acceleration to change velocity
+			velocity += (deltaTime * acceleration);
+			
+			#ifdef DEBUG // Print out the calculations
+				std::cout << (
+					"RPM: " + std::to_string(rpm)
+					+ "\nTorque: " + std::to_string(getTorque())
+					+ "\nSpeed: " + std::to_string(speed)
+					+ "\nEngine Force: " + std::to_string(calcEngineForce(wheelRadius))
+					+ "\nDirection Vector: " + std::to_string(directionVector.x) + ", " + std::to_string(directionVector.y)
+					+ "\nTraction: " + std::to_string(traction.x) + ", " + std::to_string(traction.y)
+					+ "\nAir Resistance: " + std::to_string(drag.x) + ", " + std::to_string(drag.y)
+					+ "\nRolling Resistance: " + std::to_string(rollDrag.x) + ", " + std::to_string(rollDrag.y)
+					+ "\nLongtitudinal Force: " + std::to_string(longForce.x) + ", " + std::to_string(longForce.y)
+					+ "\nAcceleration: " + std::to_string(acceleration.x) + ", " + std::to_string(acceleration.y)
+					+ "\nVelocity: " + std::to_string(velocity.x) + ", " + std::to_string(velocity.y)
+					+ "\n"
+				) << std::endl;
+			#endif
 		}
-		void calcWeightDistribution(const Vector2Df velocity, const Vector2Df acceleration) {
+		/** 
+		 * @brief Calculates the force on each wheel
+		 * @param acceleration A Vector2Df representing the acceleration of the car
+		 * @return 
+		 */
+		std::array<float, 2> calcWheelMaxForce(const Vector2Df acceleration) {
 			// Max friction
-			float wheelFrictCoef = 1.0f;
-			const float frontOffsetCG = 1.5f;
-			const float rearOffsetCG = 5.5f;
-			const float wheelBase = 7.f;
-			const float groundOffsetCG = 2.f;
 			float frontWeight;
 			float rearWeight;
 
@@ -59,13 +136,48 @@ class Car {
 			 */
 			float frontMaxFrict = wheelFrictCoef * frontWeight;
 			float rearMaxFrict = wheelFrictCoef * rearWeight;
+			return {frontMaxFrict, rearMaxFrict};
+		}
+		float getTorque() { return (rpm >= minRPM && rpm <= 1500.f) ? 2788.f : -rpm + 4745.f; }
+		void setRPM(const float rpm) {
+			this->rpm = rpm;
+			if(this->rpm < minRPM) this->rpm = minRPM;
+			else if(this->rpm > maxRPM) this->rpm = maxRPM;
+		}
+		float calcEngineForce(const float wheelRadius) {
+			float gearRatio = 15.76f;
+			return getTorque() * gearRatio * diffRatio * transEff / wheelRadius;
 		}
 		Vector2Df position;
-		void setRPM(const float rpm) { engine.get() -> setRPM(rpm); }
 	private:
-        float mass; // The mass of the car in kg
-        float airResConst;
-		float rollResConst;	// Should be ~30x that of 'airResConst' because @30m/s(100kph) they're equal
+        // Car details
+		float mass; 			// The mass of the car in kg
+        float airResConst;		// The air resistance constant of the car
+		float rollResConst;		// The rolling resistance constant of the car's wheels
+		float wheelRadius;		// The radius of the wheels in m
+		float wheelFrictCoef;	// The friction coefficient of the wheels
+		float frontOffsetCG;	// The offset of the front wheels from the center of gravity
+		float rearOffsetCG;		// The offset of the rear wheels from the center of gravity
+		float wheelBase;		// The distance between the front and rear wheels
+		float groundOffsetCG;	// The distance between the ground and the center of gravity
+		
+		// Engine Details
+		int maxRPM;     // Maximum/Redline RPM
+		int minRPM;     // Minimum/Idle RPM
+		int maxTorque;  // Max torque in n*m
+		
+		// Transmission Details
+		bool hasHL;			// If the transmission has sub-H/L gears
+		int reverseGears;	// The number of reverse gears
+		float transEff;		// The efficiency of the transmission
+		float diffRatio;	// The differential's output ratio
+		//float gears[];
 
-        std::unique_ptr<Engine> engine; // Pointer to the engine
+		// Running Variables
+		float rpm;					// The current rpm
+		float speed;				// The current speed in m/s
+		int currentGear;			// The current gear index
+		bool rearWheelsSpinout;		// If the rear wheels are spun out
+		bool frontWheelsSpinout;	// If the front wheels are spun out
+		Vector2Df velocity;	// The current velocity
 };
