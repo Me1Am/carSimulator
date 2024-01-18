@@ -67,7 +67,7 @@ class Car {
 			if(directionVector.x != directionVector.x || directionVector.y != directionVector.y) directionVector = Vector2Df(0.f, 1.f);
 			
 			// Traction Force Vector
-			Vector2Df traction = directionVector * calcEngineForce();	// Calculate traction, direction * engineforce
+			Vector2Df traction = directionVector * calcEngineForce() / wheelRadius;	// Calculate traction of the wheels, direction * engineforce / wheel radius
 			if(traction.x != traction.x || traction.y != traction.y) traction = Vector2Df(directionVector.x * calcEngineForce(), directionVector.y * calcEngineForce());
 			
 			// Breaking Force Vector
@@ -84,12 +84,16 @@ class Car {
 			Vector2Df rollDrag = -rollResConst * velocity;	// Calculate the rolling resistance(between wheel and ground)
 			if(rollDrag.x != rollDrag.x || rollDrag.y != rollDrag.y) rollDrag = Vector2Df(0.f, 0.f);
 			
-			// Longitudual Force Vector
-			Vector2Df longForce = traction + breaking + drag + rollDrag;	// Calculate the total longtitudinal force, when in a straight line at a constant speed this is zero
+			// Net Longitudual Force Vector
+			Vector2Df longForce = traction + breaking + drag + rollDrag;	// Calculate the net longtitudinal force, when in a straight line at a constant speed this is zero
 			
 			// Acceleration Vector
 			Vector2Df acceleration = Vector2Df(longForce.x / mass, longForce.y / mass);	// Calculate acceleration by the force on the car * its mass
 			
+			// Slip ratio
+			float slipRatio = (wheelRadius - speed) / std::abs(speed);
+
+
 			// Get maximum force on wheelsets
 			std::array<float, 2> results = calcWheelMaxForce(acceleration);
 			if(results[0] > MAGNITUDE(traction) || results[1] > MAGNITUDE(traction)){
@@ -146,6 +150,9 @@ class Car {
 			float rearMaxFrict = wheelFrictCoef * rearWeight;
 			return {frontMaxFrict, rearMaxFrict};
 		}
+		/**
+		 * @returns The torque of the engine
+		*/
 		float getTorque() { return (rpm >= minRPM && rpm <= 1500.f) ? 2788.f : -rpm + 4745.f; }
 		void setRPM(const float rpm) {
 			this->rpm = rpm;
@@ -153,12 +160,12 @@ class Car {
 			else if(this->rpm > maxRPM) this->rpm = maxRPM;
 		}
 		/**
-		 * @brief Calculates the force the engine is producing on the ground
-		 * @return Returns the force the wheels are exerting
+		 * @brief Calculates the force the engine is producing
+		 * @return Returns the force the engine is producing
 		*/
 		float calcEngineForce() {
 			float gearRatio = 15.76f;
-			return getTorque() * gearRatio * diffRatio * transEff / wheelRadius;
+			return getTorque() * gearRatio * diffRatio * transEff;
 		}
 		Vector2Df position;
 	private:
