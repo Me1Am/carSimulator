@@ -23,7 +23,7 @@ Driving Wheels: Slightly faster than "free" wheels
 	 The traction force is dependent on the amount of slip. The traction torque on
 	 the wheels is the angular force the road applies to the wheel, or friction, 
 	 which acts in opposition to the drive torque
-	Traction Torque: 
+	Traction Torque: tractionForce * wheelRadius
 	Slip: ((wheel angular velocity) * (radius) - speed(m/s)) / abs(speed(m/s))
 	When braking with locked wheels the slip-ratio is -1, more slip occurs past 1
 		
@@ -40,8 +40,18 @@ IN TOTAL:
 	Free Wheels:
 		Angular Velocity: speed / 2pi * radius
 	Drive Wheels:
-		Traction Force: normalizedForce * load(weight on wheel)
+		Traction Torque: tractionForce * wheelRadius
+			The torque that opposes the car
 		Slip-Ratio: ((wheel angular velocity) * (radius) - speed(m/s)) / abs(speed(m/s))
+			The amount of slip, that allows the car to move/accelerate
+		Traction Force: normalizedForce * load(weight on wheel) or curveConstant * slipRatio
+			The force that moves the car
 		Net Torque: driveTorque + tractionTorque(both wheels) + brakeTorque
-		Angular Acceleration = torque / (mass * radius^2 / 2)
+			The net torque on the wheel, positive drives the car forward
+		Inertia(approx): mass * radius^2 / 2
+			The inertia of the wheel
+		Angular Acceleration = torque / inertia
+			The angular acceleration of the wheel in radians
 		Angular Velocity: angularVelocity + angularAccel * deltaTime
+			The angular velocity(like RPM) of the wheel
+		Longitudinal Friction Coefficient: horizontalForce / verticalForce(wheight on wheel)
