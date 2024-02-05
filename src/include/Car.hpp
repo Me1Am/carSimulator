@@ -5,6 +5,8 @@
 #include <memory>
 
 #define MAGNITUDE(v) (std::sqrt(v.x * v.x + v.y * v.y))
+#define IS_NAN_VECT(v) (v.x != v.x || v.y != v.y)
+#define IS_NAN(v) (v != v)
 
 /** 
  * @brief A struct representing a car wheel
@@ -37,11 +39,7 @@ class Car {
 	 * @brief Constructor that sets all required variables
 	 * @note 'hasHL' does not affect reverse gear count, H-L gears are sub gears
 	 */
-	Car(const float carConstants[], const float engineConstants[], const float wheelArgs[][3]) {
-		
-		float constCar[] = {mass, frontOffsetCG, rearOffsetCG, groundOffsetCG, wheelBase, airResConst, rollResConst, wheelCount};
-		float constEngine[] = {maxRPM, minRPM, maxTorque, reverseGears, hasHL, transEff, diffRatio};
-		
+	Car(const float carConstants[], const float engineConstants[], const float wheelArgs[][3]) {	
 		// Constant Car Variables
 		this->mass = carConstants[0];
 		this->frontOffsetCG = carConstants[1];
@@ -90,29 +88,28 @@ class Car {
 	~Car() { delete[] wheelArr; }
 	void runCycle(const float deltaTime, const float airResConst, const float rollResConst, 
 				  const float mass, const float wheelRadius, const float breakStatus) {
-
 		// Speed
 		speed = MAGNITUDE(velocity);
-		if(speed != speed) speed = 0;
+		if(IS_NAN(speed)) speed = 0;
 
 		// Direction Vector
 		Vector2Df directionVector = velocity / speed;	// The direction(unit) vector is found by dividing the vector by its magnitude
-		if(directionVector.x != directionVector.x || directionVector.y != directionVector.y)
+		if(IS_NAN_VECT(directionVector))
 		    directionVector = Vector2Df(0.f, 1.f);
 
 		// Air Resistance Force Vector
 		Vector2Df drag = -airResConst * velocity * speed;	// Calculate the air resistance simply
-		if(drag.x != drag.x || drag.y != drag.y) drag = Vector2Df(0.f, 0.f);
+		if(IS_NAN_VECT(drag)) drag = Vector2Df(0.f, 0.f);
 
 		// Rolling Resistance Force Vector
 		Vector2Df rollDrag = -rollResConst * velocity;	// Calculate the rolling resistance(between wheel and ground)
-		if(rollDrag.x != rollDrag.x || rollDrag.y != rollDrag.y) rollDrag = Vector2Df(0.f, 0.f);
+		if(IS_NAN_VECT(rollDrag)) rollDrag = Vector2Df(0.f, 0.f);
 
 		// Breaking Force Vector
 		Vector2Df breakForce;
 		if(breakStatus >= 0.f) breakForce = directionVector * -120.f;	// Calculate the breaking force
 		else breakForce = Vector2Df(0.f, 0.f);	// Car is not breaking, break force is 0
-		if(breakForce.x != breakForce.x || breakForce.y != breakForce.y) breakForce = Vector2Df(0.f, 0.f);
+		if(IS_NAN_VECT(breakForce)) breakForce = Vector2Df(0.f, 0.f);
 		
 		Vector2Df traction[4];
 		for(int i = 0; i < wheelCount; i++) {
@@ -124,7 +121,7 @@ class Car {
 		Vector2Df tractionAvg;
 		for(Vector2Df tract : traction) tractionAvg + tract;
 		tractionAvg = tractionAvg / (float)wheelCount;	// Calculate average
-		Vector2Df longForce = tractionAvg + breakForce + drag + rollDrag;	// Calculate the net longtitudinal force
+		Vector2Df longForce = tractionAvg + breakForce + drag + rollDrag;	// Calculate the net longtitudinal force on the car
 
 		// Acceleration Vector
 		acceleration = Vector2Df(longForce.x / mass, longForce.y / mass);	// Calculate acceleration
@@ -149,7 +146,7 @@ class Car {
 	Vector2Df calcWheelTractionForce(Vector2Df breakForce, Vector2Df directionVector, float speed) {
 		// Traction Force Vector
 		Vector2Df tractionForce = directionVector * calcEngineForce() / wheelRadius;	// Calculate traction of the wheels
-		if(tractionForce.x != tractionForce.x || tractionForce.y != tractionForce.y)
+		if(IS_NAN_VECT(tractionForce))
 			tractionForce = Vector2Df(directionVector.x * calcEngineForce(), directionVector.y * calcEngineForce());
 
 		// Slip ratio
