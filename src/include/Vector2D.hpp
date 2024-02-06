@@ -60,10 +60,22 @@ template <class T> class Vector2D {
 			this->y += postfix.y;
 			return *this;
 		}
+		/// Addition Assignment
+		Vector2D<T> operator +=(const T postfix) {
+			this->x += postfix;
+			this->y += postfix;
+			return *this;
+		}
 		/// Subtraction Assignment
 		Vector2D<T> operator -=(const Vector2D<T> postfix) {
 			this->x -= postfix.x;
 			this->y -= postfix.y;
+			return *this;
+		}
+		/// Subtraction Assignment
+		Vector2D<T> operator -=(const T postfix) {
+			this->x -= postfix;
+			this->y -= postfix;
 			return *this;
 		}
 		/// Multiplication Assignment
