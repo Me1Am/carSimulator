@@ -100,9 +100,16 @@ template <class T> class Vector2D {
 template <typename T> Vector2D<T> operator +(const Vector2D<T> prefix, const Vector2D<T> postfix) {
 	return Vector2D<T>(prefix.x + postfix.x, prefix.y + postfix.y);
 }
+template <typename T> Vector2D<T> operator +(const Vector2D<T> prefix, const T postfix) {
+	return Vector2D<T>(prefix.x + postfix, prefix.y + postfix);
+}
 /// Subtraction
 template <typename T> Vector2D<T> operator -(const Vector2D<T> prefix, const Vector2D<T> postfix) {
 	return Vector2D<T>(prefix.x - postfix.x, prefix.y - postfix.y);
+}
+/// Subtraction
+template <typename T> Vector2D<T> operator -(const Vector2D<T> prefix, const T postfix) {
+	return Vector2D<T>(prefix.x - postfix, prefix.y - postfix);
 }
 /// Multiplication
 template <typename T> Vector2D<T> operator *(const Vector2D<T> prefix, const Vector2D<T> postfix) {
