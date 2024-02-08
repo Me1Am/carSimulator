@@ -124,17 +124,13 @@ class Car {
 			roadCondition = 1;	// TEMP
 
 			// TODO Check and alter traction forces on car to be accurate to the real world
-			float traction[4];
+			float tractionForce;
 			for(int i = 0; i < wheelCount; i++) {
-				traction[i] = calcWheelTractionForce(&wheelArr[i], brakeTorque, deltaTime);
+				tractionForce += calcWheelTractionForce(&wheelArr[i], brakeTorque, deltaTime);
 			}
 
 			// Net Longitudual Force Vector
-			// Using the average traction force right now for simplification
-			float tractionAvg;
-			for(float tract : traction) tractionAvg + tract;
-			tractionAvg = tractionAvg / (float)wheelCount;	// Calculate average
-			Vector2Df longForce = (directionVector * tractionAvg) + brakeForce + drag + rollDrag;	// Calculate the net longtitudinal force on the car
+			Vector2Df longForce = (directionVector * tractionForce) + brakeForce + drag + rollDrag;	// Calculate the net longtitudinal force on the car
 
 			// Acceleration Vector
 			acceleration = Vector2Df(longForce.x / mass, longForce.y / mass);	// Calculate acceleration
