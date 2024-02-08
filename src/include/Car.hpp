@@ -177,7 +177,7 @@ class Car {
 
 			// Calculate longitudinal force using the Simplified Pacejka Magic Formula
 			// F = Fz * D * sin(C * arctan(B * slip - E * (B * slip - arctan(B * slip))))
-			float tractionForce = 
+			tractionForce = 
 				fz * D[roadCondition] * sin(C[roadCondition] * atan(
 					B[roadCondition] * slip - E[roadCondition] * (B[roadCondition] * slip - atan(B[roadCondition] * slip))));
 
@@ -285,7 +285,7 @@ class Car {
 		*/
 		const float B[4];	// Stiffness, usually 4-12
 		const float C[4];	// Shape, usually 1-2
-		const float D[4];	// Peak, usually
+		const float D[4];	// Peak, usually 
 		const float E[4];	// Curve, usually ~-10-1
 		int roadCondition;	// The current road condition as an index of B, C, D, E
 };

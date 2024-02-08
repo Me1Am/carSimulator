@@ -12,7 +12,6 @@ project(carSimulator VERSION 1.0)
 set(SOURCES 
 	"src/main.cpp"
     "src/include/Vector2D.hpp"
-    "src/include/Engine.hpp"
     "src/include/Car.hpp"
 )
 add_executable(carSimulator)
