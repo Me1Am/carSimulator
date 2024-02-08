@@ -15,13 +15,15 @@
  */
 struct wheel {
 	// Constants
+	float mass;
 	float radius;
 	float frictionCoef;
 	bool powered;
 	
 	// Running 
-	Vector2Df angVelocity;
-	Vector2Df angAcceleration;
+	float rpm = 0.f;
+	float angVelocity = 0.f;
+	float angAcceleration = 0.f;
 };
 
 class Car {
@@ -39,7 +41,7 @@ class Car {
 	 * @brief Constructor that sets all required variables
 	 * @note 'hasHL' does not affect reverse gear count, H-L gears are sub gears
 	 */
-	Car(const float carConstants[], const float engineConstants[], const float wheelArgs[][3]) {	
+	Car(const float carConstants[], const float engineConstants[], const float wheelArgs[][4]) {	
 		// Constant Car Variables
 		this->mass = carConstants[0];
 		this->frontOffsetCG = carConstants[1];
@@ -62,9 +64,10 @@ class Car {
 		// Setup wheels
 		wheelArr = new wheel[wheelCount];
 		for(int i = 0; i < wheelCount; i++) {
-			wheelArr[i].radius = wheelArgs[i][0];		// Set radius
-			wheelArr[i].frictionCoef = wheelArgs[i][1];	// Set friction coefficient
-			wheelArr[i].powered = wheelArgs[i][2];		// Set if powered
+			wheelArr[i].mass = wheelArgs[i][0];			// Set mass
+			wheelArr[i].radius = wheelArgs[i][1];		// Set radius
+			wheelArr[i].frictionCoef = wheelArgs[i][2];	// Set friction coefficient
+			wheelArr[i].powered = wheelArgs[i][3];		// Set if powered
 		}
 
 		// Set Running Variables
@@ -111,17 +114,17 @@ class Car {
 		else breakForce = Vector2Df(0.f, 0.f);	// Car is not breaking, break force is 0
 		if(IS_NAN_VECT(breakForce)) breakForce = Vector2Df(0.f, 0.f);
 		
-		Vector2Df traction[4];
+		float traction[4];
 		for(int i = 0; i < wheelCount; i++) {
-			traction[i] = calcWheelTractionForce(breakForce, directionVector, speed);
+			traction[i] = calcWheelTractionForce(breakForce, directionVector, &wheelArr[i], deltaTime);
 		}
 
 		// Net Longitudual Force Vector
 		// Using the average traction force right now for simplification
-		Vector2Df tractionAvg;
-		for(Vector2Df tract : traction) tractionAvg + tract;
+		float tractionAvg;
+		for(float tract : traction) tractionAvg + tract;
 		tractionAvg = tractionAvg / (float)wheelCount;	// Calculate average
-		Vector2Df longForce = tractionAvg + breakForce + drag + rollDrag;	// Calculate the net longtitudinal force on the car
+		Vector2Df longForce = (directionVector * tractionAvg) + breakForce + drag + rollDrag;	// Calculate the net longtitudinal force on the car
 
 		// Acceleration Vector
 		acceleration = Vector2Df(longForce.x / mass, longForce.y / mass);	// Calculate acceleration
@@ -131,10 +134,10 @@ class Car {
 
 		#ifdef DEBUG	// Print out the calculations
 			std::cout << (
-				"RPM: " + std::to_string(rpm) + "\nTorque: " + std::to_string(getTorque()) +
-				"\nSpeed: " + std::to_string(speed) + "\nEngine Force: " + std::to_string(calcEngineForce()) +
+				"RPM: " + std::to_string(rpm) + "\nEngine Torque: " + std::to_string(getTorque()) +
+				"\nSpeed: " + std::to_string(speed) + "\nEngine Torque(on wheel): " + std::to_string(calcEngineTorque()) +
 				"\nDirection Vector: " + std::to_string(directionVector.x) + ", " + std::to_string(directionVector.y) +
-				"\nTraction: " + std::to_string(tractionAvg.x) + ", " + std::to_string(tractionAvg.y) +
+				"\nTraction: " + std::to_string(tractionAvg) +
 				"\nAir Resistance: " + std::to_string(drag.x) + ", " + std::to_string(drag.y) +
 				"\nRolling Resistance: " + std::to_string(rollDrag.x) + ", " + std::to_string(rollDrag.y) +
 				"\nLongtitudinal Force: " + std::to_string(longForce.x) + ", " + std::to_string(longForce.y) +
@@ -143,53 +146,64 @@ class Car {
 			) << std::endl;
 		#endif
 	}
-	Vector2Df calcWheelTractionForce(Vector2Df breakForce, Vector2Df directionVector, float speed) {
-		// Traction Force Vector
-		Vector2Df tractionForce = directionVector * calcEngineForce() / wheelRadius;	// Calculate traction of the wheels
-		if(IS_NAN_VECT(tractionForce))
-			tractionForce = Vector2Df(directionVector.x * calcEngineForce(), directionVector.y * calcEngineForce());
-
-		// Slip ratio
-		float slipRatio = (wheelRadius - speed) / std::abs(speed);
-
-		std::array<float, 2> maxForces = calcWheelsMaxForce(acceleration);
-		if(maxForces[0] > MAGNITUDE(tractionForce) || maxForces[1] > MAGNITUDE(tractionForce))
-			tractionForce *= 0.80f;	// Wheels are spinning freely, decrease traction force
+	float calcWheelTractionForce(Vector2Df breakForce, Vector2Df directionVector, wheel* wheel, const float deltaTime) {
+		float driveTorque = calcEngineTorque(); 
 		
+		// Drive Force Vector
+		// The longtitudinal force that the wheels exert
+		float driveForce = driveTorque / wheel->radius;	// Calculate force of the wheels
+	
+		float maxForces = calcWheelsMaxForce(acceleration, wheel->frictionCoef, false);
+		if(maxForces > driveForce || maxForces > driveForce)
+			driveForce *= 0.85f;	// Wheels are spinning freely, decrease traction force
+		
+		float tractionForce;		// Force the wheel creates which pushes the car
+		float tractionTorque;		// Torque opposing the wheel, the sum of the wheels on the same axle
+		float netTorque;			// The net amount of torque on the wheel
+		float brakeTorque;			// The beaking torque on the wheel
+		float inertia;				// The inertia of the wheels on the same axle
+		float slipRatio;			// The ratio between wheel speed to car speed
+
+		inertia = 2 * (wheel->mass * (wheel->radius * wheel->radius) / 2);	// Multiplied by the wheels on the same axle
+		netTorque = driveTorque + tractionTorque + brakeTorque;	// Total torque on the wheel
+		wheel->angAcceleration = netTorque / inertia;
+		wheel->angVelocity += wheel->angAcceleration * deltaTime;
+		slipRatio = ((wheel->angVelocity * wheel->radius) - speed) / abs(speed);
+
+		float verticalLoad = calcWheelLoad(acceleration, false);
+
+		// Update car variables
+		float gearRatio = 15.76f;	// Temp
+		rpm = wheel->angVelocity * gearRatio * diffRatio * 60 / 2 * M_PI;	// Calculate new engine rpm
+
 		return tractionForce;
 	}
 	/**
-	 * @brief Calculates the force on each wheel
+	 * @brief Calculates the vertical load on each wheel
 	 * @param acceleration A Vector2Df representing the acceleration of the car
-	 * @return A float array with the front wheels force first
+	 * @param isFrontAxle A bool representing whether the wheel is on the front or wheel axle
+	 * @return The vertical load
 	 */
-	std::array<float, 2> calcWheelsMaxForce(const Vector2Df acceleration) {
-		// Max friction
-		float frontWeight;
-		float rearWeight;
-
+	float calcWheelLoad(const Vector2Df acceleration, const bool isFrontAxle) {
 		// Weight distribution
 		if(velocity.x == 0.f && velocity.y == 0.f) {	// Stationary
-			frontWeight = (rearOffsetCG / wheelBase) * mass * 0.98f;
-			rearWeight = (frontOffsetCG / wheelBase) * mass * 0.98f;
+			return isFrontAxle ? 
+				(rearOffsetCG / wheelBase) * mass * 0.98f :
+				(frontOffsetCG / wheelBase) * mass * 0.98f;
 		} else {	// Accelerating/Decelerating
 			float accelerationMagnitude = MAGNITUDE(acceleration);
-			frontWeight =
+			return isFrontAxle ? 
 				((rearOffsetCG / wheelBase) * mass * 0.98f) - 
-				((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
-			rearWeight =
+				((groundOffsetCG * wheelBase) * mass * accelerationMagnitude) :
 				((frontOffsetCG / wheelBase) * mass * 0.98f) + 
 				((groundOffsetCG * wheelBase) * mass * accelerationMagnitude);
 		}
-
-		/* Calculate the maximum friction force for the wheel sets
-		 * If the force being exerted on either wheelset is greater
-		 * Then the wheels spinout, reducing tractionForce and thus force
-		 */
-		float frontMaxFrict = wheelFrictCoef * frontWeight;
-		float rearMaxFrict = wheelFrictCoef * rearWeight;
-		return {frontMaxFrict, rearMaxFrict};
 	}
+	float calcWheelsMaxForce(const Vector2Df acceleration, const float frictionCoef, const bool isFrontAxle) {
+		float wheelLoad = calcWheelLoad(acceleration, isFrontAxle);
+		return wheelLoad * frictionCoef ;
+	}
+	
 	/**
 	 * @returns The torque of the engine
 	 */
@@ -203,7 +217,7 @@ class Car {
 	 * @brief Calculates the force the engine is producing
 	 * @return Returns the force the engine is producing
 	 */
-	float calcEngineForce() {
+	float calcEngineTorque() {
 		float gearRatio = 15.76f;
 		return getTorque() * gearRatio * diffRatio * transEff;
 	}
@@ -218,8 +232,6 @@ class Car {
 		float mass;				// The mass of the car in kg
 		float airResConst;		// The air resistance constant of the car
 		float rollResConst;		// The rolling resistance constant of the car's wheels
-		float wheelRadius;		// The radius of the wheels in m
-		float wheelFrictCoef;	// The friction coefficient of the wheels
 		float frontOffsetCG;	// The offset of the front wheels from the center of gravity
 		float rearOffsetCG;		// The offset of the rear wheels from the center of gravity
 		float wheelBase;		// The distance between the front and rear wheels
