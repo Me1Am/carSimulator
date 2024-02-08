@@ -140,10 +140,12 @@ class Car {
 
 			#ifdef DEBUG	// Print out the calculations
 				std::cout << (
-					"RPM: " + std::to_string(rpm) + "\nEngine Torque: " + std::to_string(getTorque()) +
-					"\nSpeed: " + std::to_string(speed) + "\nEngine Torque(on wheel): " + std::to_string(calcEngineTorque()) +
+					"RPM: " + std::to_string(rpm) + 
+					"\nEngine Torque: " + std::to_string(getTorque()) +
+					"\nEngine Torque(on wheel): " + std::to_string(calcEngineTorque()) +
+					"\nSpeed: " + std::to_string(speed) + 
 					"\nDirection Vector: " + std::to_string(directionVector.x) + ", " + std::to_string(directionVector.y) +
-					"\nTraction: " + std::to_string(tractionAvg) +
+					"\nNet Traction Force: " + std::to_string(tractionForce) +
 					"\nAir Resistance: " + std::to_string(drag.x) + ", " + std::to_string(drag.y) +
 					"\nRolling Resistance: " + std::to_string(rollDrag.x) + ", " + std::to_string(rollDrag.y) +
 					"\nLongtitudinal Force: " + std::to_string(longForce.x) + ", " + std::to_string(longForce.y) +
