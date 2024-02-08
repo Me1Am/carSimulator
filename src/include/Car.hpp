@@ -84,18 +84,13 @@ class Car {
 			acceleration = Vector2Df();
 
 		}
+		~Car() { delete[] wheelArr; }
 		/**
 		 * @brief Runs through one physics cycle
-		 * @param deltaTime A float representing the time since last cycle
-		 * @param airResConst A float representing the air resistance constant
-		 * @param rollResConst A float representing the rolling resistance constant(30x 'airResConst')
-		 * @param mass A float representing the total mass of the car
-		 * @param wheelRadius A float representing the radius of the wheels, used in 'calcEngineForce'
 		 * @param brakeStatus A float representing the status of the brakes from 0-1 inclusive
+		 * @param deltaTime A float representing the time since last cycle
 		 */
-		~Car() { delete[] wheelArr; }
-		void runCycle(const float deltaTime, const float airResConst, const float rollResConst, 
-					const float mass, const float wheelRadius, const float brakeStatus) {
+		void runCycle(const float brakeStatus, const float deltaTime) {
 			// Speed
 			speed = MAGNITUDE(velocity);
 			if(IS_NAN(speed)) speed = 0;
@@ -188,7 +183,8 @@ class Car {
 				fz * D[roadCondition] * sin(C[roadCondition] * atan(
 					B[roadCondition] * slip - E[roadCondition] * (B[roadCondition] * slip - atan(B[roadCondition] * slip))));
 
-			tractionTorque = tractionForce * wheel->radius;	// Get opposing torque from wheel force
+			// TODO Get traction torqure from the other wheel on the axel(if any) instead of multiplying by two
+			tractionTorque = 2 * tractionForce * wheel->radius;	// Get opposing torque from wheel force
 
 			// Update car variables
 			float gearRatio = 15.76f;	// Temp
