@@ -131,7 +131,7 @@ class Car {
 			// TODO Check and alter traction forces on car to be accurate to the real world
 			float traction[4];
 			for(int i = 0; i < wheelCount; i++) {
-				traction[i] = calcWheelTractionForce(brakeTorque, directionVector, &wheelArr[i], deltaTime);
+				traction[i] = calcWheelTractionForce(&wheelArr[i], brakeTorque, deltaTime);
 			}
 
 			// Net Longitudual Force Vector
@@ -162,10 +162,14 @@ class Car {
 			#endif
 		}
 
-		// TODO Figure out how to deal with torque and force as they're relatively decoupled now
-		// ie. how does drive torque affect traction force if the formula doesn't use it
-		// Does drive torque only affect the wheel's rpm?
-		float calcWheelTractionForce(float brakeTorque, Vector2Df directionVector, wheel* wheel, const float deltaTime) {
+		/**
+		 * @brief Calculates a given wheels traction force
+		 * @param wheel A wheel struct to be worked on
+		 * @param brakeTorque A float representing the brake torque on the wheel
+		 * @param deltaTime A float representing the time between last frame
+		 * @return A float representing the wheel's traction force
+		 */
+		float calcWheelTractionForce(wheel* wheel, const float brakeTorque, const float deltaTime) {
 			float driveTorque = calcEngineTorque();	// Get torque the engine is applying to the wheels
 			
 			float tractionForce;		// Force the wheel creates which pushes the car
@@ -184,13 +188,15 @@ class Car {
 				fz * D[roadCondition] * sin(C[roadCondition] * atan(
 					B[roadCondition] * slip - E[roadCondition] * (B[roadCondition] * slip - atan(B[roadCondition] * slip))));
 
+			tractionTorque = tractionForce * wheel->radius;	// Get opposing torque from wheel force
+
 			// Update car variables
 			float gearRatio = 15.76f;	// Temp
 			setRPM(wheel->angVelocity * gearRatio * diffRatio * 60 / 2 * M_PI);	// Calculate and set new engine rpm
 
 			// Update variabels for next frame
-			netTorque = driveTorque + tractionTorque + brakeTorque;		// Update total torque on the wheel
-			wheel->angAcceleration = netTorque / wheel->inertia;		// Update wheel acceleration
+			netTorque = driveTorque - tractionTorque - brakeTorque;		// Update total torque on the wheel
+			wheel->angAcceleration = netTorque / wheel->inertia;			// Update wheel acceleration
 
 			return tractionForce;
 		}
