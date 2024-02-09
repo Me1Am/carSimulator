@@ -1,8 +1,18 @@
 #include "include/Car.hpp"
 #include <iostream>
+#include <Window.hpp>
 
 int main() {
 	std::cout << "start" << std::endl;
+
+	Window* win = new Window(640, 480);
+	win->mainLoop();
+	delete win;
+	
+	std::cout << "end" <<std::endl;
+	return 0;
+
+
 
 	float wheelArgs[4][4] = {{25, 0.5, 1.0, true}, {25, 0.5, 1.0, true},
 							 {25, 0.5, 1.0, false}, {25, 0.5, 1.0, false}};
