@@ -6,7 +6,8 @@ int main() {
 	std::cout << "start" << std::endl;
 
 	Window* win = new Window(640, 480);
-	win->mainLoop();
+	if(!win->create()) return 1;
+	win->loop();
 	delete win;
 	
 	std::cout << "end" <<std::endl;

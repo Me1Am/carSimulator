@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # Project Setup
 project(carSimulator VERSION 1.0)
-add_link_options("-lSDL2" "-lGL")
+add_link_options("-lSDL2" "-lSDL2_image" "-lGL" "-lGLEW")
 set(SOURCES 
 	"src/main.cpp"
     "src/Window.hpp"
@@ -21,4 +21,4 @@ add_executable(carSimulator)
 target_sources(carSimulator PUBLIC ${SOURCES})
 target_include_directories(carSimulator PUBLIC "src/" "src/include/")
 target_compile_definitions(carSimulator PUBLIC DEBUG)
-target_link_libraries(carSimulator PUBLIC SDL2 GL)
+target_link_libraries(carSimulator PUBLIC SDL2 GL GLEW)
