@@ -29,7 +29,7 @@ struct wheel {
 
 class Car {
 	public:
-		Car() : B({10.f, 12.f, 5.f, 4.f}), C({1.9, 2.3, 2.f, 2.f}), D({1.f, 0.82, 0.3, 0.1}), E({0.97, 1.f, 1.f, 1.f}) {
+		Car() : B{10.f, 12.f, 5.f, 4.f}, C{1.9, 2.3, 2.f, 2.f}, D{1.f, 0.82, 0.3, 0.1}, E{0.97, 1.f, 1.f, 1.f} {
 			position = Vector2Df(0.f, 0.f);
 		}
 		/** Constructor
@@ -45,7 +45,7 @@ class Car {
 		 * @note 'hasHL' does not affect reverse gear count, H-L gears are sub gears
 		 */
 		Car(const float carConstants[], const float engineConstants[], const float wheelArgs[][4]) : 
-			B({10.f, 12.f, 5.f, 4.f}), C({1.9, 2.3, 2.f, 2.f}), D({1.f, 0.82, 0.3, 0.1}), E({0.97, 1.f, 1.f, 1.f}) {
+			B{10.f, 12.f, 5.f, 4.f}, C{1.9, 2.3, 2.f, 2.f}, D{1.f, 0.82, 0.3, 0.1}, E{0.97, 1.f, 1.f, 1.f} {
 			// Constant Car Variables
 			this->mass = carConstants[0];
 			this->frontOffsetCG = carConstants[1];
