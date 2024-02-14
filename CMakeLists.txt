@@ -13,6 +13,7 @@ add_link_options("-lSDL2" "-lSDL2_image" "-lGL" "-lGLEW")
 set(SOURCES 
 	"src/main.cpp"
     "src/Window.hpp"
+    "src/include/FileHandler.hpp"
     "src/include/Vector2D.hpp"
     "src/include/Car.hpp"
 )
