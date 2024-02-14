@@ -95,38 +95,14 @@ class Window {
 			gProgramID = glCreateProgram();	// Create OpenGL shader program and get it's ID
 
 			// Vertex Shader
-			GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);	// Create a vertex shader
-			std::string vertSourceStr = FileHandler::getShaderFromFile("../shaders/vertexShader.vert");	// Load shader
-			const GLchar* vertSourceArr[] = {vertSourceStr.c_str()};	// Convert to GLchar array
-			glShaderSource(vertexShader, 1, vertSourceArr, NULL);	// Write the source into the shader
-			glCompileShader(vertexShader);	// Compile the shader
-			// Error check
-			status = GL_FALSE;
-			glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
-			if(status != GL_TRUE){
-				std::cout << "Unable to compile vertex shader" << std::endl;
-				printShaderLog(vertexShader);
-				return false;
-			}
+			GLuint vertexShader = FileHandler::compileShader("../shaders/vertexShader.vert");
 			glAttachShader(gProgramID, vertexShader);	// Attach shader to the program
 			
 			// Fragment Shader
-			GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);	// Create a fragment shader
-			std::string fragSourceStr = FileHandler::getShaderFromFile("../shaders/fragmentShader.frag");	// Load shader
-			const GLchar* fragSourceArr[] = {fragSourceStr.c_str()};	// Convert to GLchar array
-			glShaderSource(fragmentShader, 1, fragSourceArr, NULL);	// Write the source into the shader
-			glCompileShader(fragmentShader);	// Compile the shader
-			// Error check
-			status = GL_FALSE;
-			glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
-			if(status != GL_TRUE){
-				std::cout << "Unable to compile fragment shader" << std::endl;
-				printShaderLog(fragmentShader);
-				return false;
-			}
+			GLuint fragmentShader = FileHandler::compileShader("../shaders/fragmentShader.frag");
 			glAttachShader(gProgramID, fragmentShader);
+
 			glLinkProgram(gProgramID);	// Link the OpenGL program
-			// Error check
 			status = GL_TRUE;
 			glGetProgramiv(gProgramID, GL_LINK_STATUS, &status);
 			if(status != GL_TRUE){
@@ -134,6 +110,9 @@ class Window {
 				printProgramLog(gProgramID);
 				return false;
 			}
+			// Detach shaders when done linking
+			glDetachShader(gProgramID, vertexShader);
+			glDetachShader(gProgramID, fragmentShader);
 
 			// Get attribute from the shader to send it vertex data
 			gVertexPos2DLocation = glGetAttribLocation(gProgramID, "LVertexPos2D");
