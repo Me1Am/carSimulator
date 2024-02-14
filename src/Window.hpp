@@ -114,6 +114,7 @@ class Window {
 			glDetachShader(gProgramID, vertexShader);
 			glDetachShader(gProgramID, fragmentShader);
 
+			/* Create Quad */
 			// Get attribute from the shader to send it vertex data
 			gVertexPos2DLocation = glGetAttribLocation(gProgramID, "LVertexPos2D");
 			if(gVertexPos2DLocation == -1){
@@ -217,15 +218,17 @@ class Window {
 
 			glUseProgram(gProgramID);	// Bind program
 			glEnableVertexAttribArray(gVertexPos2DLocation);	// Enable vertex position
+
 			// Set vertex data
 			glBindBuffer(GL_ARRAY_BUFFER, gVBO);
 			glVertexAttribPointer(gVertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
 			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, gIBO );	// Set index data
 			
 			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, NULL);	// Draw
+			
 			glDisableVertexAttribArray( gVertexPos2DLocation );	// Disable vertex position
 			
-			glUseProgram(NULL);	// Unbind
+			glUseProgram(0);	// Unbind
 		}
 
 	private:
