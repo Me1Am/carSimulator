@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 
+#include "include/FileHandler.hpp"
+
 
 class Window {
 	public:
@@ -86,6 +88,7 @@ class Window {
 
 			return true;	// Success
 		}
+		/// Initialize OpenGL components
 		bool initOpenGL() {
 			GLint status = GL_FALSE;
 
@@ -93,10 +96,9 @@ class Window {
 
 			// Vertex Shader
 			GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);	// Create a vertex shader
-			const GLchar* vertexShaderSource[] = {	// Vertex shader code source
-				"#version 140\nin vec2 LVertexPos2D; void main() { gl_Position = vec4( LVertexPos2D.x, LVertexPos2D.y, 0, 1 ); }"
-			};
-			glShaderSource(vertexShader, 1, vertexShaderSource, NULL);	// Tell the shader to use this source
+			std::string vertSourceStr = FileHandler::getShaderFromFile("../shaders/vertexShader.vert");	// Load shader
+			const GLchar* vertSourceArr[] = {vertSourceStr.c_str()};	// Convert to GLchar array
+			glShaderSource(vertexShader, 1, vertSourceArr, NULL);	// Write the source into the shader
 			glCompileShader(vertexShader);	// Compile the shader
 			// Error check
 			status = GL_FALSE;
@@ -110,11 +112,10 @@ class Window {
 			
 			// Fragment Shader
 			GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);	// Create a fragment shader
-			const GLchar* fragmentShaderSource[] = {	// Fragment shader code source
-				"#version 140\nout vec4 LFragment; void main() { LFragment = vec4( 1.0, 1.0, 1.0, 1.0 ); }"
-			};
-			glShaderSource(fragmentShader, 1, fragmentShaderSource, NULL);
-			glCompileShader(fragmentShader);
+			std::string fragSourceStr = FileHandler::getShaderFromFile("../shaders/fragmentShader.frag");	// Load shader
+			const GLchar* fragSourceArr[] = {fragSourceStr.c_str()};	// Convert to GLchar array
+			glShaderSource(fragmentShader, 1, fragSourceArr, NULL);	// Write the source into the shader
+			glCompileShader(fragmentShader);	// Compile the shader
 			// Error check
 			status = GL_FALSE;
 			glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
@@ -163,7 +164,7 @@ class Window {
 			return true;
 		}
 		/// Prints the log for the given shader
-		void printShaderLog(GLuint shader) {
+		void printShaderLog(const GLuint shader) {
 			if(!glIsShader(shader)) return;	// Check if its a shader
 			int infoLogLength = 0;
 			int maxLength = 0;
@@ -177,7 +178,7 @@ class Window {
 			delete[] infoLog;
 		}
 		/// Prints the log for the given program
-		void printProgramLog(GLuint program) {
+		void printProgramLog(const GLuint program) {
 			if(!glIsProgram(program)) return;	// Check if its a program
 			int infoLogLength = 0;
 			int maxLength = 0;
@@ -247,6 +248,7 @@ class Window {
 			
 			glUseProgram(NULL);	// Unbind
 		}
+
 	private:
 		SDL_Window* window = NULL;          // The window
 		SDL_Renderer* renderer = NULL;		// The renderer for the window, uses hardware acceleration
