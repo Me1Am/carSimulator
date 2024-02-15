@@ -11,7 +11,10 @@
 
 class Window {
 	public:
-		Window(const int width, const int height) : SCREEN_WIDTH(width), SCREEN_HEIGHT(height) {}
+		Window(const int width, const int height) {
+			this->width = width;
+			this->height = height;
+		}
 		~Window() {
 			glDeleteProgram(gProgramID);	// Delete OpenGL program
 			SDL_DestroyWindow(window);		// Delete window
@@ -46,9 +49,10 @@ class Window {
 				"Physics Engine", 
 				SDL_WINDOWPOS_UNDEFINED, 
 				SDL_WINDOWPOS_UNDEFINED, 
-				SCREEN_WIDTH, 
-				SCREEN_HEIGHT, 
+				width, 
+				height, 
 				SDL_WINDOW_SHOWN |
+				SDL_WINDOW_RESIZABLE |
 				SDL_WINDOW_OPENGL
 			);
 			if(window == NULL){
@@ -90,6 +94,8 @@ class Window {
 		/// Initialize OpenGL components
 		bool initOpenGL() {
 			GLint status = GL_FALSE;
+
+			glViewport(0, 0, width, height);
 
 			gProgramID = glCreateProgram();	// Create OpenGL shader program and get it's ID
 
@@ -197,6 +203,8 @@ class Window {
 										render();	// Render
 										SDL_GL_SwapWindow(window);	// Update
 										break;
+									case SDL_WINDOWEVENT_RESIZED:
+										resize();
 									default:
 										break;
 								}
@@ -212,6 +220,13 @@ class Window {
 					
 				}
 			}
+		}
+		// Resize Window
+		// TODO Implement real resizing/keep ratio of drawable items
+		void resize() {
+			SDL_GL_GetDrawableSize(window, &width, &height);	// Set 'width' and 'height'
+
+			glViewport(0, 0, width, height);	// Update OpenGL viewport
 		}
 		// Render
 		void render() {
@@ -246,8 +261,6 @@ class Window {
 		GLuint gProgramID = 0;				// ID of the OpenGL shader program
 		GLint gVertexPos2DLocation = -1;	// 2D vertex position object
 
-		// Constants
-		const int SCREEN_WIDTH;
-		const int SCREEN_HEIGHT;
-
+		int width;			// The running drawable window width
+		int height;			// The running drawable window width
 };
