@@ -142,9 +142,9 @@ class Window {
 			glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
 			
 			// Create IBO
-			glGenBuffers( 1, &gIBO );
-			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, gIBO );
-			glBufferData( GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW );
+			glGenBuffers(1, &gIBO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
 			
 			return true;
 		}
@@ -231,14 +231,14 @@ class Window {
 				}
 			}
 		}
-		// Resize Window
+		/// Resize Window
 		// TODO Implement real resizing/keep ratio of drawable items
 		void resize() {
 			SDL_GL_GetDrawableSize(window, &width, &height);	// Set 'width' and 'height'
 
 			glViewport(0, 0, width, height);	// Update OpenGL viewport
 		}
-		// Render
+		/// Render
 		void render() {
 			glClear(GL_COLOR_BUFFER_BIT);	// Clear color buffer
 
@@ -248,11 +248,11 @@ class Window {
 			// Set vertex data
 			glBindBuffer(GL_ARRAY_BUFFER, gVBO);
 			glVertexAttribPointer(gVertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
-			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, gIBO );	// Set index data
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIBO);	// Set index data
 			
 			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, NULL);	// Draw
 			
-			glDisableVertexAttribArray( gVertexPos2DLocation );	// Disable vertex position
+			glDisableVertexAttribArray(gVertexPos2DLocation);	// Disable vertex position
 			
 			glUseProgram(0);	// Unbind
 		}
