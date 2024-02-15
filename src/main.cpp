@@ -1,8 +1,9 @@
 #include "include/Car.hpp"
 #include <iostream>
 #include <Window.hpp>
+#include "SDL2/SDL.h"
 
-int main() {
+int main(int argc, char *argv[]) {
 	std::cout << "start" << std::endl;
 
 	Window* win = new Window(640, 480);
