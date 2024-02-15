@@ -260,11 +260,7 @@ class Window {
 	private:
 		SDL_Window* window = NULL;          // The window
 		SDL_Renderer* renderer = NULL;		// The renderer for the window, uses hardware acceleration
-		
 		SDL_GLContext gContext = NULL;		// The OpenGL context
-
-		SDL_Surface* lettuce_sur;
-		SDL_Texture* lettuce_tex;
 
 		GLuint gVBO = 0;					// OpenGL vertex buffer object
 		GLuint gIBO = 0;					// OpenGL index buffer object, order to draw VBOs
