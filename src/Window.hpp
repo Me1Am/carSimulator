@@ -211,6 +211,16 @@ class Window {
 							}
 							break;
 						}
+						case SDL_KEYDOWN:
+							// Quit with escape key
+							if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){								
+								glDeleteProgram(gProgramID);
+								SDL_DestroyWindow(window);
+
+								event.type = SDL_QUIT;
+								SDL_PushEvent(&event);
+							}
+							break;
 						case SDL_QUIT:	// Quit window
 							SDL_Quit();	// Cleanup subsystems
 							return;	// Exit loop
