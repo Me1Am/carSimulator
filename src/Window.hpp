@@ -13,11 +13,10 @@ class Window {
 	public:
 		Window(const int width, const int height) : SCREEN_WIDTH(width), SCREEN_HEIGHT(height) {}
 		~Window() {
-			//Destroy window
-			SDL_DestroyWindow(window);
+			glDeleteProgram(gProgramID);	// Delete OpenGL program
+			SDL_DestroyWindow(window);		// Delete window
 
-			//Quit SDL subsystems
-			SDL_Quit();
+			SDL_Quit();	// Quit SDL
 		}
 
 		/**
@@ -195,6 +194,10 @@ class Window {
 										SDL_PushEvent(&event);
 										break;
 									case SDL_WINDOWEVENT_EXPOSED:
+										render();	// Render
+										SDL_GL_SwapWindow(window);	// Update
+										break;
+									default:
 										break;
 								}
 							}
@@ -208,8 +211,6 @@ class Window {
 					}
 					
 				}
-				render();	// Render
-				SDL_GL_SwapWindow(window);	// Update screen
 			}
 		}
 		// Render
