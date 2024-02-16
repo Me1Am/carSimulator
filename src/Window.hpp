@@ -176,13 +176,17 @@ class Window {
 			
 			delete[] infoLog;
 		}
+		
 		/// Main loop
 		void loop() {
 			SDL_Event event;
 			Uint32 windowID = SDL_GetWindowID(window);
+			Uint32 nextTime;	// The tick that the next frame should take place on
 
 			// Main Event Loop
-			while(true) {
+			while(true) {				
+				nextTime = SDL_GetTicks() + MIN_FRAME_TIME;
+
 				while(SDL_PollEvent(&event)) {
 					// Main Event Handler
 					switch(event.type) {
@@ -229,6 +233,11 @@ class Window {
 					}
 					
 				}
+
+				Uint32 currentTime = SDL_GetTicks();
+				SDL_Delay((nextTime <= currentTime) ? 0 : nextTime - currentTime);
+        		nextTime += MIN_FRAME_TIME;
+				std::cout<< "frametime: " << nextTime-currentTime <<std::endl;
 			}
 		}
 		/// Resize Window
@@ -269,4 +278,6 @@ class Window {
 
 		int width;			// The running drawable window width
 		int height;			// The running drawable window width
+		
+		const float MIN_FRAME_TIME = 16.66666667;	// Minimum frame time in ms
 };
