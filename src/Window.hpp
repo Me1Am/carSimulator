@@ -236,8 +236,8 @@ class Window {
 
 				Uint32 currentTime = SDL_GetTicks();
 				SDL_Delay((nextTime <= currentTime) ? 0 : nextTime - currentTime);
+				std::cout << "frametime: " << nextTime-currentTime << std::endl;
         		nextTime += MIN_FRAME_TIME;
-				std::cout<< "frametime: " << nextTime-currentTime <<std::endl;
 			}
 		}
 		/// Resize Window
