@@ -1,7 +1,8 @@
-#version 140
+#version 330 core
 
-in vec2 LVertexPos2D; 
+// Set location of aPos to 0(used in glVertexAttribPointer())
+layout (location = 0) in vec3 aPos;
 
 void main() {
-    gl_Position = vec4(LVertexPos2D.x, LVertexPos2D.y, 0, 1);
+    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }

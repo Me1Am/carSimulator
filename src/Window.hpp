@@ -37,7 +37,7 @@ class Window {
 			
 			// Use OpenGL 3.1 core
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 			
 			// Other OpenGL settings
@@ -210,21 +210,15 @@ class Window {
 		}
 		/// Render
 		void render() {
-			glClear(GL_COLOR_BUFFER_BIT);	// Clear color buffer
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Set clear color
+			glClear(GL_COLOR_BUFFER_BIT);			// Clear window with the color given by glClearColor()
 
 			glUseProgram(quadProgram.getProgramID());
+			glBindVertexArray(quadProgram.getVAO());	// Use the VAO which sets up the VBO
 			
-			glEnableVertexAttribArray(quadProgram.getVertex2DPos());	// Enable vertex position
-
-			// Set vertex data
-			glBindBuffer(GL_ARRAY_BUFFER, quadProgram.getVBO());
-			glVertexAttribPointer(quadProgram.getVertex2DPos(), 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadProgram.getIBO());	// Set index data
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// Draw
 			
-			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, NULL);	// Draw
-			
-			glDisableVertexAttribArray(quadProgram.getVertex2DPos());	// Disable vertex position
-						
 			glUseProgram(0);	// Unbind
 		}
 

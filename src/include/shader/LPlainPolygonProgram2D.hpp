@@ -6,6 +6,15 @@
 class LPlainPolygonProgram2D : public LShaderProgram {
 	public:
 		/**
+		 * @brief Deletes the shader program
+		*/
+		void freeProgram() {
+			glDeleteVertexArrays(1, &vao);
+			glDeleteBuffers(1, &vbo);
+			glDeleteBuffers(1, &ebo);
+			glDeleteProgram(programID);
+		}
+		/**
 		 * @brief Loads the shader program
 		 * @return a bool if loading worked or not 
 		*/
@@ -30,33 +39,58 @@ class LPlainPolygonProgram2D : public LShaderProgram {
 				return false;
 			}
 
+			// Cleanup
+			glDeleteShader(vertexShader);
+			glDeleteShader(fragmentShader);
+
 			glClearColor(0.f, 0.f, 0.f, 0.f);	// Initialize clear color
 			GLfloat vertexData[] = {	// VBO data
-				-0.5, -0.5, 0.0, 
-				0.5, -0.5, 0.0, 
-				0.5, 0.5, 0.0, 
-				-0.5, 0.5, 0.0
+				0.5f,  0.5f, 0.0f,  // Top right
+				0.5f, -0.5f, 0.0f,  // Bottom right
+				-0.5f, -0.5f, 0.0f, // Bottom left
+				-0.5f,  0.5f, 0.0f	// Top left 
 			};
-			GLuint indexData[] = {0, 1, 2, 3};	// IBO data
-						
-			// Create VBO
-			glGenBuffers(1, &vbo);
-			glBindBuffer(GL_ARRAY_BUFFER, vbo);	
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
-						
-			// Create IBO
-			glGenBuffers(1, &ibo);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
+			GLuint indexData[] = { 
+				0, 1, 3, 	// Triangle 1
+				1, 2, 3		// Triangle 2
+			};
 
-			// Create quad
-			vertex2DPos = glGetAttribLocation(programID, "LVertexPos2D");	// Get attribute to send it vertex data
-			if(vertex2DPos == -1){
-				std::cout << "LVertexPos2D is not a valid glsl program variable" << std::endl;
-				return false;
-			}
+			// Create objects
+			glGenVertexArrays(1, &vao);	// Create VAO
+			glGenBuffers(1, &vbo);	// Create VBO
+			glGenBuffers(1, &ebo);	// Create VBO
+			glBindVertexArray(vao);		// Bind VAO to capture calls
+
+			// VBO
+			glBindBuffer(GL_ARRAY_BUFFER, vbo);	// Use the vbo
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);	// Set data
+
+			// EBO
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);	// Use the ebo
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexData), indexData, GL_STATIC_DRAW);	// Set data
+
+			/* Tell OpenGL how to interpret the data
+			 * 	1: Which vertex attribute to configure, ie. its location
+			 *  2: The size of the attribute(vec3 has 3 values)
+			 *  3: The data type of the attribute(vec3 is a float)
+			 *  4: If the data should be normalized
+			 * 		For (int, byte) the integer data is normalized 
+			 * 		to 0(or -1 for signed) and 1 when converted to float
+			 *  5: The space between consecuative attributes(3 because vec3 is 3 floats)
+			 *  6: The offset of where the position data begins in the buffer
+			 */
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+			glEnableVertexAttribArray(0);	// Enable the attribute at index 0
+			glBindBuffer(GL_ARRAY_BUFFER, 0);	// Unbind VBO
 
 			return true;
+		}
+		/**
+		 * @brief Gets the shader's VAO
+		 * @return The GLuint representing the VAO
+		*/
+		GLuint getVAO() {
+			return vao;
 		}
 
 		/**
@@ -71,19 +105,12 @@ class LPlainPolygonProgram2D : public LShaderProgram {
 		 * @brief Gets the shader's IBO
 		 * @return The GLuint representing the IBO
 		*/
-		GLuint getIBO() {
-			return ibo;
+		GLuint getEBO() {
+			return ebo;
 		}
 	
-		/**
-		 * @brief Gets the shader's vertex position object
-		 * @return The GLuint representing the 2D vertex position
-		*/
-		GLuint getVertex2DPos() {
-			return vertex2DPos;
-		}
 	private:
+		GLuint vao = 0;			// OpenGL vertex array object, stores vertex attrib calls
 		GLuint vbo = 0;			// OpenGL vertex buffer object
-		GLuint ibo = 0;			// OpenGL index buffer object, order to draw VBOs
-		GLint vertex2DPos = -1;	// 2D vertex position object
+		GLuint ebo = 0;			// OpenGL element buffer object, 
 };
