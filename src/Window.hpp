@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <cmath>
 
 //#include "include/FileHandler.hpp"
 #include "include/shader/LPlainPolygonProgram2D.hpp"
@@ -142,12 +143,9 @@ class Window {
 		void loop() {
 			SDL_Event event;
 			Uint32 windowID = SDL_GetWindowID(window);
-			Uint32 nextTime;	// The tick that the next frame should take place on
 
 			// Main Event Loop
-			while(true) {				
-				nextTime = SDL_GetTicks() + MIN_FRAME_TIME;
-
+			while(true) {
 				while(SDL_PollEvent(&event)) {
 					// Main Event Handler
 					switch(event.type) {
@@ -165,8 +163,8 @@ class Window {
 										SDL_PushEvent(&event);
 										break;
 									case SDL_WINDOWEVENT_EXPOSED:
-										render();	// Render
-										SDL_GL_SwapWindow(window);	// Update
+										//render();	// Render
+										//SDL_GL_SwapWindow(window);	// Update
 										break;
 									case SDL_WINDOWEVENT_RESIZED:
 										resize();
@@ -192,13 +190,18 @@ class Window {
 						default:
 							break;
 					}
-					
 				}
 
+				render();	// Render
+				SDL_GL_SwapWindow(window);	// Update
+
 				Uint32 currentTime = SDL_GetTicks();
-				SDL_Delay((nextTime <= currentTime) ? 0 : nextTime - currentTime);
-				std::cout << "frametime: " << nextTime-currentTime << std::endl;
-        		nextTime += MIN_FRAME_TIME;
+				deltaTime = currentTime - prevTime;
+				SDL_Delay((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0);
+				std::cout << "Frametime: " << deltaTime << 
+							 " | Limited FPS: " << SDL_GetTicks() - prevTime << 
+							 " | Delay Time: " << ((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0) << std::endl;
+				prevTime = SDL_GetTicks();
 			}
 		}
 		/// Resize Window
@@ -214,6 +217,10 @@ class Window {
 			glClear(GL_COLOR_BUFFER_BIT);			// Clear window with the color given by glClearColor()
 
 			glUseProgram(quadProgram.getProgramID());
+			
+			float greenValue = std::cos(SDL_GetTicks64() / 1000.f) / 2.0f + 0.5f;
+			int vertexColorLocation = glGetUniformLocation(quadProgram.getProgramID(), "timeColor");
+			glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 0.0f);
 			glBindVertexArray(quadProgram.getVAO());	// Use the VAO which sets up the VBO
 			
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
@@ -227,8 +234,10 @@ class Window {
 		SDL_Renderer* renderer = NULL;	// The renderer for the window, uses hardware acceleration
 		SDL_GLContext gContext = NULL;	// The OpenGL context
 
-		int width;	// The running drawable window width
-		int height;	// The running drawable window width
+		int width;			// The running drawable window width
+		int height;			// The running drawable window width
+		Uint32 deltaTime;	// The running time between frames
+		Uint32 prevTime;	// The running time from init last frame was
 		
 		const float MIN_FRAME_TIME = 16.66666667;	// Minimum frame time in ms
 
