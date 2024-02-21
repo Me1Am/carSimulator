@@ -6,7 +6,8 @@
 #include <iostream>
 #include <string>
 
-#include "include/FileHandler.hpp"
+//#include "include/FileHandler.hpp"
+#include "include/shader/LPlainPolygonProgram2D.hpp"
 
 
 class Window {
@@ -16,7 +17,7 @@ class Window {
 			this->height = height;
 		}
 		~Window() {
-			glDeleteProgram(gProgramID);	// Delete OpenGL program
+			quadProgram.freeProgram();
 			SDL_DestroyWindow(window);		// Delete window
 
 			SDL_Quit();	// Quit SDL
@@ -97,54 +98,14 @@ class Window {
 
 			glViewport(0, 0, width, height);
 
-			gProgramID = glCreateProgram();	// Create OpenGL shader program and get it's ID
-
-			// Vertex Shader
-			GLuint vertexShader = FileHandler::compileShader("../shaders/vertexShader.vert");
-			glAttachShader(gProgramID, vertexShader);	// Attach shader to the program
-			
-			// Fragment Shader
-			GLuint fragmentShader = FileHandler::compileShader("../shaders/fragmentShader.frag");
-			glAttachShader(gProgramID, fragmentShader);
-
-			glLinkProgram(gProgramID);	// Link the OpenGL program
-			status = GL_TRUE;
-			glGetProgramiv(gProgramID, GL_LINK_STATUS, &status);
-			if(status != GL_TRUE){
-				std::cout << "Unable to link OpenGL program, program ID: " << gProgramID << std::endl;
-				printProgramLog(gProgramID);
-				return false;
-			}
-			// Detach shaders when done linking
-			glDetachShader(gProgramID, vertexShader);
-			glDetachShader(gProgramID, fragmentShader);
-
-			/* Create Quad */
-			// Get attribute from the shader to send it vertex data
-			gVertexPos2DLocation = glGetAttribLocation(gProgramID, "LVertexPos2D");
-			if(gVertexPos2DLocation == -1){
-				std::cout << "LVertexPos2D is not a valid glsl program variable" << std::endl;
+			// Load basic shader program
+			if(!quadProgram.loadProgram()){
+				printf( "Unable to load basic shader!\n" );
 				return false;
 			}
 
-			glClearColor(0.f, 0.f, 0.f, 0.f);	// Initialize clear color
-			GLfloat vertexData[] = {	// VBO data
-				-0.5, -0.5, 
-				0.5, -0.5, 
-				0.5, 0.5, 
-				-0.5, 0.5, 
-			};
-			GLuint indexData[] = {0, 1, 2, 3};	// IBO data
-
-			// Create VBO
-			glGenBuffers(1, &gVBO);
-			glBindBuffer(GL_ARRAY_BUFFER, gVBO);
-			glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
-			
-			// Create IBO
-			glGenBuffers(1, &gIBO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
+			// Bind shader program
+			quadProgram.bind();
 			
 			return true;
 		}
@@ -196,7 +157,7 @@ class Window {
 								switch(event.window.event) {
 									case SDL_WINDOWEVENT_CLOSE:	// Window receives close command
 										// Destroy objects
-										glDeleteProgram(gProgramID);
+										quadProgram.freeProgram();
 										SDL_DestroyWindow(window);
 
 										// Push quit message
@@ -217,8 +178,8 @@ class Window {
 						}
 						case SDL_KEYDOWN:
 							// Quit with escape key
-							if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){								
-								glDeleteProgram(gProgramID);
+							if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){
+								quadProgram.freeProgram();
 								SDL_DestroyWindow(window);
 
 								event.type = SDL_QUIT;
@@ -251,33 +212,31 @@ class Window {
 		void render() {
 			glClear(GL_COLOR_BUFFER_BIT);	// Clear color buffer
 
-			glUseProgram(gProgramID);	// Bind program
-			glEnableVertexAttribArray(gVertexPos2DLocation);	// Enable vertex position
+			glUseProgram(quadProgram.getProgramID());
+			
+			glEnableVertexAttribArray(quadProgram.getVertex2DPos());	// Enable vertex position
 
 			// Set vertex data
-			glBindBuffer(GL_ARRAY_BUFFER, gVBO);
-			glVertexAttribPointer(gVertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIBO);	// Set index data
+			glBindBuffer(GL_ARRAY_BUFFER, quadProgram.getVBO());
+			glVertexAttribPointer(quadProgram.getVertex2DPos(), 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadProgram.getIBO());	// Set index data
 			
 			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, NULL);	// Draw
 			
-			glDisableVertexAttribArray(gVertexPos2DLocation);	// Disable vertex position
-			
+			glDisableVertexAttribArray(quadProgram.getVertex2DPos());	// Disable vertex position
+						
 			glUseProgram(0);	// Unbind
 		}
 
 	private:
-		SDL_Window* window = NULL;          // The window
-		SDL_Renderer* renderer = NULL;		// The renderer for the window, uses hardware acceleration
-		SDL_GLContext gContext = NULL;		// The OpenGL context
+		SDL_Window* window = NULL;		// The window
+		SDL_Renderer* renderer = NULL;	// The renderer for the window, uses hardware acceleration
+		SDL_GLContext gContext = NULL;	// The OpenGL context
 
-		GLuint gVBO = 0;					// OpenGL vertex buffer object
-		GLuint gIBO = 0;					// OpenGL index buffer object, order to draw VBOs
-		GLuint gProgramID = 0;				// ID of the OpenGL shader program
-		GLint gVertexPos2DLocation = -1;	// 2D vertex position object
-
-		int width;			// The running drawable window width
-		int height;			// The running drawable window width
+		int width;	// The running drawable window width
+		int height;	// The running drawable window width
 		
 		const float MIN_FRAME_TIME = 16.66666667;	// Minimum frame time in ms
+
+		LPlainPolygonProgram2D quadProgram;
 };
