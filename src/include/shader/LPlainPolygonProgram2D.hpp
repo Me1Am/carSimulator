@@ -57,8 +57,8 @@ class LPlainPolygonProgram2D : public LShaderProgram {
 
 			// Create objects
 			glGenVertexArrays(1, &vao);	// Create VAO
-			glGenBuffers(1, &vbo);	// Create VBO
-			glGenBuffers(1, &ebo);	// Create VBO
+			glGenBuffers(1, &vbo);		// Create VBO
+			glGenBuffers(1, &ebo);		// Create VBO
 			glBindVertexArray(vao);		// Bind VAO to capture calls
 
 			// VBO
