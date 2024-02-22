@@ -1,9 +1,13 @@
 #include <iostream>
 
-#include "LShaderProgram.hpp"
+#include "Shader.hpp"
 #include "../FileHandler.hpp"
 
-class LPlainPolygonProgram2D : public LShaderProgram {
+/**
+ * @brief Shader program which holds a simple colored quad
+ * @extends Shader
+*/
+class ShaderColorizedQuad : public Shader {
 	public:
 		/**
 		 * @brief Deletes the shader program
