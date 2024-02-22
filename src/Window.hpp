@@ -8,7 +8,7 @@
 #include <cmath>
 
 //#include "include/FileHandler.hpp"
-#include "include/shader/LPlainPolygonProgram2D.hpp"
+#include "include/shader/ShaderColorizedQuad.hpp"
 
 
 class Window {
@@ -240,5 +240,5 @@ class Window {
 		
 		const float MIN_FRAME_TIME = 16.66666667;	// Minimum frame time in ms
 
-		LPlainPolygonProgram2D quadProgram;
+		ShaderColorizedQuad quadProgram;
 };
