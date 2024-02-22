@@ -86,6 +86,17 @@ class LPlainPolygonProgram2D : public LShaderProgram {
 			return true;
 		}
 		/**
+		 * @brief Sets a Vec4 uniform variable's value
+		 * @param field The name of the variable
+		 * @param value The first value of the Vec4
+		 * @param value The second value of the Vec4
+		 * @param value The third value of the Vec4
+		 * @param value The fourth value of the Vec4
+		 */
+		void setVec4(const std::string &field, const float value1, const float value2, const float value3, const float value4) {
+			glUniform4f(glGetUniformLocation(programID, field.c_str()), value1, value2, value3, value4);
+		}
+		/**
 		 * @brief Gets the shader's VAO
 		 * @return The GLuint representing the VAO
 		*/

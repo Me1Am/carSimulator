@@ -54,6 +54,30 @@ class LShaderProgram {
 			glUseProgram(0);	// Unbind
 		}
 		/**
+		 * @brief Sets a boolean uniform variable's value
+		 * @param field The name of the variable
+		 * @param value The value to set
+		 */
+		void setBool(const std::string &field, const bool value) {
+			glUniform1i(glGetUniformLocation(programID, field.c_str()), (int)value); 
+		}
+		/**
+		 * @brief Sets an int uniform variable's value
+		 * @param field The name of the variable
+		 * @param value The value to set
+		 */
+		void setInt(const std::string &field, const int value) {
+			glUniform1i(glGetUniformLocation(programID, field.c_str()), value); 
+		}
+		/**
+		 * @brief Sets a float uniform variable's value
+		 * @param field The name of the variable
+		 * @param value The value to set
+		 */
+		void setFloat(const std::string &field, const float value) {
+			glUniform1f(glGetUniformLocation(programID, field.c_str()), value);
+		}
+		/**
 		 * @brief Gets the shader program's ID
 		 * @return The GLuint representing the ID
 		*/
