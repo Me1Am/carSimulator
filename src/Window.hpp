@@ -219,8 +219,7 @@ class Window {
 			glUseProgram(quadProgram.getProgramID());
 			
 			float greenValue = std::cos(SDL_GetTicks64() / 1000.f) / 2.0f + 0.5f;
-			int vertexColorLocation = glGetUniformLocation(quadProgram.getProgramID(), "timeColor");
-			glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 0.0f);
+			quadProgram.setVec4("timeColor", 0.0f, greenValue, 0.0f, 0.0f);
 			glBindVertexArray(quadProgram.getVAO());	// Use the VAO which sets up the VBO
 			
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
