@@ -195,7 +195,8 @@ class Window {
 
 				Uint32 currentTime = SDL_GetTicks();
 				deltaTime = currentTime - prevTime;
-				//SDL_Delay((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0);
+				if(SDL_GL_GetSwapInterval() != 1)
+					SDL_Delay((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0);
 				std::cout << "Frametime: " << deltaTime << 
 							 " | Limited FPS: " << SDL_GetTicks() - prevTime << 
 							 " | Delay Time: " << ((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0) << std::endl;
