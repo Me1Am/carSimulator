@@ -30,12 +30,12 @@ else()
 	set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 	set(COMPILE_FLAGS="-g -Wall")
 	
-	add_link_options("-lSDL2" "-lGLEW" "-lGL")
+	add_link_options("-lSDL2" "-lGLEW" "-lGL" "-lSOIL")
 	
 	add_executable(carSimulator)
 	
 	target_compile_definitions(carSimulator PUBLIC DEBUG)
-	target_link_libraries(carSimulator PUBLIC SDL2 GL GLEW)
+	target_link_libraries(carSimulator PUBLIC SDL2 GL GLEW SOIL)
 endif()
 
 target_sources(carSimulator PUBLIC ${SOURCES})
