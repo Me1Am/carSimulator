@@ -55,7 +55,7 @@ class Window {
 				height, 
 				SDL_WINDOW_SHOWN |
 				SDL_WINDOW_RESIZABLE |
-				SDL_WINDOW_OPENGL
+				SDL_WINDOW_OPENGL 
 			);
 			if(window == NULL){
 				std::cout << "Unable to create window, SDL_Error: " << SDL_GetError() << std::endl;
@@ -79,11 +79,11 @@ class Window {
 			}
 
 			// TODO Creat program args function to enable vsync
-			//// Enable VSync
-			//SDL_GL_SetSwapInterval(1);
-			//if(SDL_GL_GetSwapInterval() != 1){
-			//	std::cout << "Warning: Unable to enable VSync, SDL_Error: " << SDL_GetError() << std::endl;
-			//}
+			// Enable VSync
+			SDL_GL_SetSwapInterval(1);
+			if(SDL_GL_GetSwapInterval() != 1){
+				std::cout << "Warning: Unable to enable VSync, SDL_Error: " << SDL_GetError() << std::endl;
+			}
 
 			// Initialize OpenGL
 			if(!initOpenGL()){
@@ -192,11 +192,10 @@ class Window {
 				}
 
 				render();	// Render
-				SDL_GL_SwapWindow(window);	// Update
 
 				Uint32 currentTime = SDL_GetTicks();
 				deltaTime = currentTime - prevTime;
-				SDL_Delay((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0);
+				//SDL_Delay((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0);
 				std::cout << "Frametime: " << deltaTime << 
 							 " | Limited FPS: " << SDL_GetTicks() - prevTime << 
 							 " | Delay Time: " << ((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0) << std::endl;
@@ -226,10 +225,17 @@ class Window {
 			quad.setInt("texture1", 0);	// Set the first texture as the background/base
 			quad.setInt("texture2", 1);	// Set the second texture as the overlay
 
+			quad.rotate(0.f, 0.f, 0.f, 1.f);
+			quad.scale(1.5, 1.5, 1.5);
+
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// Draw
 			
 			glUseProgram(0);	// Unbind
+			
+			glFlush();
+			SDL_GL_SwapWindow(window);	// Update
+			glFinish();
 		}
 
 	private:
