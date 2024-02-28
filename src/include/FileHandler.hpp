@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <GL/glu.h>
+#include <SOIL/SOIL.h>
 
 
 #include <iostream>
@@ -35,7 +36,7 @@ class FileHandler {
 
 		/** Compile and return a shader from the given path
 		 * @param path The path to the shader file
-		 * @return a GLuint representing the compiled shader
+		 * @return A GLuint representing the compiled shader
 		 * @note REQUIRES that the given path uses the following file extensions
 		 * @note .vert - a vertex shader
 		 * @note .tesc - a tessellation control shader
@@ -86,5 +87,26 @@ class FileHandler {
 			}
 
 			return shader;
+		}
+
+		/** Load Image Into OpenGL Texture
+		 * @param path The path to the image file
+		 * @return A bool representing if the operation was successful
+		 * @note Must create and bind a texture first
+		*/
+		static bool loadImage(const std::string path, const GLuint type) {
+			int width, height, channels;
+			
+			unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, &channels, SOIL_LOAD_AUTO);
+			if(!image){
+				std::cout << "FileHandler::loadImage(): Failed to load image" << std::endl;
+				return false;
+			}
+			glTexImage2D(GL_TEXTURE_2D, 0, type, width, height, 0, type, GL_UNSIGNED_BYTE, image);
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+			SOIL_free_image_data(image);
+			
+			return true;
 		}
 };
