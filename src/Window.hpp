@@ -8,7 +8,7 @@
 #include <cmath>
 
 //#include "include/FileHandler.hpp"
-#include "include/shader/ShaderColorizedQuad.hpp"
+#include "include/shader/ShaderTexturedQuad.hpp"
 
 
 class Window {
@@ -18,7 +18,7 @@ class Window {
 			this->height = height;
 		}
 		~Window() {
-			quadProgram.freeProgram();
+			quad.freeProgram();
 			SDL_DestroyWindow(window);		// Delete window
 
 			SDL_Quit();	// Quit SDL
@@ -100,13 +100,13 @@ class Window {
 			glViewport(0, 0, width, height);
 
 			// Load basic shader program
-			if(!quadProgram.loadProgram()){
+			if(!quad.loadProgram()){
 				printf( "Unable to load basic shader!\n" );
 				return false;
 			}
 
 			// Bind shader program
-			quadProgram.bind();
+			quad.bind();
 			
 			return true;
 		}
@@ -138,7 +138,6 @@ class Window {
 			
 			delete[] infoLog;
 		}
-		
 		/// Main loop
 		void loop() {
 			SDL_Event event;
@@ -155,7 +154,7 @@ class Window {
 								switch(event.window.event) {
 									case SDL_WINDOWEVENT_CLOSE:	// Window receives close command
 										// Destroy objects
-										quadProgram.freeProgram();
+										quad.freeProgram();
 										SDL_DestroyWindow(window);
 
 										// Push quit message
@@ -177,7 +176,7 @@ class Window {
 						case SDL_KEYDOWN:
 							// Quit with escape key
 							if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){
-								quadProgram.freeProgram();
+								quad.freeProgram();
 								SDL_DestroyWindow(window);
 
 								event.type = SDL_QUIT;
@@ -216,12 +215,17 @@ class Window {
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Set clear color
 			glClear(GL_COLOR_BUFFER_BIT);			// Clear window with the color given by glClearColor()
 
-			glUseProgram(quadProgram.getProgramID());
+			glUseProgram(quad.getProgramID());
 			
-			float greenValue = std::cos(SDL_GetTicks64() / 1000.f) / 2.0f + 0.5f;
-			quadProgram.setVec4("timeColor", 0.0f, greenValue, 0.0f, 0.0f);
-			glBindVertexArray(quadProgram.getVAO());	// Use the VAO which sets up the VBO
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, quad.getTexture(1));
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, quad.getTexture(2));
+			glBindVertexArray(quad.getVAO());	// Use the VAO which sets up the VBO
 			
+			quad.setInt("texture1", 0);	// Set the first texture as the background/base
+			quad.setInt("texture2", 1);	// Set the second texture as the overlay
+
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// Draw
 			
@@ -240,5 +244,5 @@ class Window {
 		
 		const float MIN_FRAME_TIME = 16.66666667;	// Minimum frame time in ms
 
-		ShaderColorizedQuad quadProgram;
+		ShaderTexturedQuad quad;
 };
