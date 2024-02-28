@@ -1,3 +1,7 @@
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 
 #include "Shader.hpp"
@@ -31,7 +35,6 @@ class ShaderTexturedQuad : public Shader {
 			glAttachShader(programID, vertexShader);	// Attach shader to the program
 
 			// Fragment Shader
-			std::cout << "fragment" << std::endl;
 			GLuint fragmentShader = FileHandler::compileShader("../shaders/texture.frag");
 			glAttachShader(programID, fragmentShader);
 			
@@ -131,6 +134,33 @@ class ShaderTexturedQuad : public Shader {
 			glBindBuffer(GL_ARRAY_BUFFER, 0);	// Unbind VBO
 
 			return true;
+		}
+		/**
+		 * @brief Rotates the object by the given degrees, on the given axis
+		 * @param degrees Float representing the amount to rotate by
+		 * @param xAxis Float representing the x axis value for applying the rotation
+		 * @param yAxis Float representing the y axis value for applying the rotation
+		 * @param zAxis Float representing the z axis value for applying the rotation
+		 */
+		void rotate(const float degrees, const float xAxis, const float yAxis, const float zAxis) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::rotate(matrix, glm::radians(degrees), glm::vec3(xAxis, yAxis, zAxis));
+
+			// Apply rotation
+			glUniformMatrix4fv(glGetUniformLocation(programID, "rotate"), 1, GL_FALSE, glm::value_ptr(matrix));	
+		}
+		/**
+		 * @brief Scales the object by the given values
+		 * @param xScale Float representing the x scale factor
+		 * @param yScale Float representing the y scale factor
+		 * @param zScale Float representing the z scale factor
+		 */
+		void scale(const float xScale, const float yScale, const float zScale) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(xScale, yScale, zScale));
+
+			// Apply scale
+			glUniformMatrix4fv(glGetUniformLocation(programID, "scale"), 1, GL_FALSE, glm::value_ptr(matrix));
 		}
 		/**
 		 * @brief Sets a Vec4 uniform variable's value

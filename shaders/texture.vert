@@ -7,8 +7,11 @@ layout (location = 2) in vec2 aTexCoord;
 out vec3 ourColor;
 out vec2 TexCoord;
 
+uniform mat4 scale;
+uniform mat4 rotate;
+
 void main() {
-    gl_Position = vec4(aPos, 1.0);
+    gl_Position = scale * rotate * vec4(aPos, 1.0);
     ourColor = aColor;
     TexCoord = 1.0 - aTexCoord; // Use "1.0 - coord" to reverse the flip image
 }
