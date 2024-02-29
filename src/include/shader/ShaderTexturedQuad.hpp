@@ -163,6 +163,25 @@ class ShaderTexturedQuad : public Shader {
 			glUniformMatrix4fv(glGetUniformLocation(programID, "scale"), 1, GL_FALSE, glm::value_ptr(matrix));
 		}
 		/**
+		 * @brief Applies the appropriate transforms to show perspective or not
+		 * @param hasPerspective A bool representing whether the quad should be given perspective
+		*/
+		void perspective(const bool hasPerspective) {
+			glm::mat4 model 		= glm::mat4(1.f);
+			glm::mat4 view 			= glm::mat4(1.f);
+			glm::mat4 projection 	= glm::mat4(1.f);
+
+			if(hasPerspective){
+				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+				view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+				projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+			}
+
+			glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(glGetUniformLocation(programID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		}
+		/**
 		 * @brief Sets a Vec4 uniform variable's value
 		 * @param field The name of the variable
 		 * @param value The first value of the Vec4
