@@ -7,9 +7,7 @@
 #include <string>
 #include <cmath>
 
-//#include "include/FileHandler.hpp"
-#include "include/shader/ShaderTexturedQuad.hpp"
-
+#include "include/shader/ShaderTexturedCube.hpp"
 
 class Window {
 	public:
@@ -18,7 +16,7 @@ class Window {
 			this->height = height;
 		}
 		~Window() {
-			quad.freeProgram();
+			cube.freeProgram();
 			SDL_DestroyWindow(window);		// Delete window
 
 			SDL_Quit();	// Quit SDL
@@ -98,15 +96,16 @@ class Window {
 			GLint status = GL_FALSE;
 
 			glViewport(0, 0, width, height);
+			glEnable(GL_DEPTH_TEST);
 
 			// Load basic shader program
-			if(!quad.loadProgram()){
+			if(!cube.loadProgram()){
 				printf( "Unable to load basic shader!\n" );
 				return false;
 			}
 
 			// Bind shader program
-			quad.bind();
+			cube.bind();
 			
 			return true;
 		}
@@ -154,7 +153,7 @@ class Window {
 								switch(event.window.event) {
 									case SDL_WINDOWEVENT_CLOSE:	// Window receives close command
 										// Destroy objects
-										quad.freeProgram();
+										cube.freeProgram();
 										SDL_DestroyWindow(window);
 
 										// Push quit message
@@ -176,7 +175,7 @@ class Window {
 						case SDL_KEYDOWN:
 							// Quit with escape key
 							if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){
-								quad.freeProgram();
+								cube.freeProgram();
 								SDL_DestroyWindow(window);
 
 								event.type = SDL_QUIT;
@@ -213,25 +212,25 @@ class Window {
 		/// Render
 		void render() {
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Set clear color
-			glClear(GL_COLOR_BUFFER_BIT);			// Clear window with the color given by glClearColor()
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glUseProgram(quad.getProgramID());
+			glUseProgram(cube.getProgramID());
 			
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, quad.getTexture(1));
+			glBindTexture(GL_TEXTURE_2D, cube.getTexture(1));
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, quad.getTexture(2));
-			glBindVertexArray(quad.getVAO());	// Use the VAO which sets up the VBO
-			
-			quad.setInt("texture1", 0);	// Set the first texture as the background/base
-			quad.setInt("texture2", 1);	// Set the second texture as the overlay
+			glBindTexture(GL_TEXTURE_2D, cube.getTexture(2));
+			glBindVertexArray(cube.getVAO());	// Use the VAO which sets up the VBO
 
-			quad.rotate(0.f, 0.f, 0.f, 1.f);
-			quad.scale(1.5, 1.5, 1.5);
-			quad.perspective(true);
+			cube.setInt("texture1", 0);	// Set the first texture as the background/base
+			cube.setInt("texture2", 1);	// Set the second texture as the overlay
+
+			cube.rotate(SDL_GetTicks()/20, 0.5f, 1.f, 0.f);
+			cube.scale(1.f, 1.f, 1.f);
+			cube.perspective(true);
 
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// Draw
+			glDrawArrays(GL_TRIANGLES, 0, 36);	// Draw
 			
 			glUseProgram(0);	// Unbind
 			
@@ -252,5 +251,5 @@ class Window {
 		
 		const float MIN_FRAME_TIME = 16.66666667;	// Minimum frame time in ms
 
-		ShaderTexturedQuad quad;
+		ShaderTexturedCube cube;
 };
