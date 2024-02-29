@@ -53,10 +53,10 @@ class ShaderTexturedQuad : public Shader {
 
 			glClearColor(0.f, 0.f, 0.f, 0.f);	// Initialize clear color
 			GLfloat vertexData[] = {	// VBO data
-				0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  1.0f, 1.0f,	// Top right
-				0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f,	// Bottom right
-				-0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,	// Bottom left
-				-0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f 	// Top left 
+				0.5f,  0.5f, 0.0f,  1.0f, 1.0f,	// Top right
+				0.5f, -0.5f, 0.0f,  1.0f, 0.0f,	// Bottom right
+				-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,	// Bottom left
+				-0.5f,  0.5f, 0.0f, 0.0f, 1.0f 	// Top left 
 			};
 			GLuint indexData[] = { 
 				0, 1, 3, 	// Triangle 1
@@ -88,14 +88,11 @@ class ShaderTexturedQuad : public Shader {
 			 *  5: The space between consecuative attributes(3 because vec3 is 3 floats)
 			 *  6: The offset of where the position data begins in the buffer
 			 */
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
 			glEnableVertexAttribArray(0);	// Enable the attribute at index 0
-			// Set color
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-			glEnableVertexAttribArray(1);	// Enable the attribute at index 1
 			// Set texture position
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
-			glEnableVertexAttribArray(2);	// Enable the attribute at index 1
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+			glEnableVertexAttribArray(1);	// Enable the attribute at index 1
 
 			// Texture 1
 			glGenTextures(1, &texture1);	// Create one texture and assign to 'texture'
