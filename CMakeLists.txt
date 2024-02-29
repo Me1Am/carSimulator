@@ -18,14 +18,13 @@ set(SOURCES
 
 if(WIN32)
 	set(CMAKE_CXX_COMPILER "C:/Users/JTK6759/Documents/apps/msys2/ucrt64/bin/g++.exe")
-	set(COMPILE_FLAGS="-g -Wall -mwindows -Dmain=SDL_main")
-	
-	add_link_options("-lmingw32" "-lSDL2main" "-lSDL2" "-mwindows" "-lfreeglut" "-lglew32" "-lopengl32")
-	
-	add_executable(carSimulator WIN32)
-	
-	target_compile_definitions(carSimulator PUBLIC DEBUG WIN)
-		target_link_libraries(carSimulator PUBLIC SDL2 opengl32 glew32 freeglut)
+	set(COMPILE_FLAGS="-g -Wall -Dmain=SDL_main")
+
+	add_link_options("-lmingw32" "-lSDL2" "-lSDL2main" "-lSOIL" "-lfreeglut" "-lglew32" "-lopengl32")
+	add_executable(carSimulator)
+
+	target_compile_definitions(carSimulator PUBLIC DEBUG)
+	target_link_libraries(carSimulator PUBLIC SDL2 SOIL opengl32 glew32 freeglut)
 else()
 	set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 	set(COMPILE_FLAGS="-g -Wall")
