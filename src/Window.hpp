@@ -228,6 +228,7 @@ class Window {
 
 			quad.rotate(0.f, 0.f, 0.f, 1.f);
 			quad.scale(1.5, 1.5, 1.5);
+			quad.perspective(true);
 
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// Draw
