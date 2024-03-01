@@ -146,8 +146,6 @@ class ShaderTexturedCube : public Shader {
 				return false;
 			}
 
-			//glBindBuffer(GL_ARRAY_BUFFER, 0);	// Unbind VBO
-
 			return true;
 		}
 		/**
@@ -181,16 +179,18 @@ class ShaderTexturedCube : public Shader {
 		 * @brief Applies the appropriate transforms to show perspective or not
 		 * @param hasPerspective A bool representing whether the quad should be given perspective
 		*/
-		void perspective(const bool hasPerspective) {
-			glm::mat4 model 		= glm::mat4(1.f);
-			glm::mat4 view 			= glm::mat4(1.f);
-			glm::mat4 projection 	= glm::mat4(1.f);
+		void perspective(const bool hasCamera, glm::mat4 cameraView) {
+			glm::mat4 model = glm::mat4(1.f);
+			glm::mat4 view 	= glm::mat4(1.f);
+			glm::mat4 projection = glm::mat4(1.f);
 
-        	//if(hasPerspective){
-				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-				view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+			if(hasCamera){
+				//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.f, 0.f, 0.f));
+				model = glm::translate(model, glm::vec3(0.f, 0.f, 0.f));
+				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.f, 0.3f, 0.5f));
 				projection = glm::perspective(glm::radians(45.0f), 640.f / 480.f, 0.1f, 100.0f);
-			//}
+				view = cameraView;
+			}
 
 			glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -204,7 +204,7 @@ class ShaderTexturedCube : public Shader {
 		 * @param value The third value of the Vec4
 		 * @param value The fourth value of the Vec4
 		 */
-		void setVec4(const std::string &field, const float value1, const float value2, const float value3, const float value4) {
+		void setFloat4(const std::string &field, const float value1, const float value2, const float value3, const float value4) {
 			glUniform4f(glGetUniformLocation(programID, field.c_str()), value1, value2, value3, value4);
 		}
 		/**
@@ -251,4 +251,8 @@ class ShaderTexturedCube : public Shader {
 		GLuint ebo = 0;		// OpenGL element buffer object, 
 		GLuint texture1;	// OpenGL texture object
 		GLuint texture2;	// OpenGL texture object
+
+		glm::vec3 cameraPos 	= glm::vec3(0.0f, 0.0f, 3.0f);
+		glm::vec3 cameraFront 	= glm::vec3(0.0f, 0.0f, -1.0f);
+		glm::vec3 cameraUp 		= glm::vec3(0.0f, 1.0f, 0.0f);
 };

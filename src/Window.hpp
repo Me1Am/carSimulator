@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "include/shader/ShaderTexturedCube.hpp"
+#include "include/Camera.hpp"
 
 class Window {
 	public:
@@ -88,7 +89,9 @@ class Window {
 				std::cout << "Unable to initialize OpenGL" << std::endl;
 				return false;
 			}
-
+			
+			keyboard = SDL_GetKeyboardState(NULL);	// Get pointer to internal keyboard state
+			
 			return true;	// Success
 		}
 		/// Initialize OpenGL components
@@ -189,7 +192,7 @@ class Window {
 							break;
 					}
 				}
-
+				
 				render();	// Render
 
 				Uint32 currentTime = SDL_GetTicks();
@@ -225,9 +228,21 @@ class Window {
 			cube.setInt("texture1", 0);	// Set the first texture as the background/base
 			cube.setInt("texture2", 1);	// Set the second texture as the overlay
 
+			std::cout << "W: " << (bool)keyboard[SDL_SCANCODE_W] << "S: " << (bool)keyboard[SDL_SCANCODE_S] << "A: " << (bool)keyboard[SDL_SCANCODE_A] << "D: " << (bool)keyboard[SDL_SCANCODE_D] << std::endl;
+
+			camera.updateCameraPosition(	// Update camera position for view calculations
+				keyboard[SDL_SCANCODE_W], 
+				keyboard[SDL_SCANCODE_S], 
+				keyboard[SDL_SCANCODE_A], 
+				keyboard[SDL_SCANCODE_D], 
+				deltaTime
+			);
 			cube.rotate(SDL_GetTicks()/20, 0.5f, 1.f, 0.f);
-			cube.scale(1.f, 1.f, 1.f);
-			cube.perspective(true);
+			cube.scale(0.5f, 0.5f, 0.5f);
+			cube.perspective(
+				true, 
+				camera.calcCameraView()
+			);
 
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
 			glDrawArrays(GL_TRIANGLES, 0, 36);	// Draw
@@ -248,8 +263,9 @@ class Window {
 		int height;			// The running drawable window width
 		Uint32 deltaTime;	// The running time between frames
 		Uint32 prevTime;	// The running time from init last frame was
-		
+		const Uint8* keyboard;	// The running state of the keyboard
 		const float MIN_FRAME_TIME = 16.66666667;	// Minimum frame time in ms
 
 		ShaderTexturedCube cube;
+		Camera camera;
 };
