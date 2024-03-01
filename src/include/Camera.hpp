@@ -7,24 +7,19 @@
 class Camera {
 	public:
 		/**
-		 * @brief Caclulates the view matrix from a given position
-		 * @param cameraX A float representing the x position of the camera
-		 * @param cameraY A float representing the y position of the camera
-		 * @param cameraZ A float representing the z position of the camera
+		 * @brief Caclulates the view matrix
 		 * @return A glm::mat4 representing the camera's view
 		*/
 		glm::mat4 calcCameraView() {
-			glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-			glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::vec3 cameraTarget = cameraPos + cameraFront;
 
-			glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);	// Points opposite of the camera
-			glm::vec3 cameraRight = glm::normalize(glm::cross(worldUp, cameraDirection));
-			glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+			glm::vec3 cameraRight = glm::normalize(glm::cross(WORLD_UP, cameraFront));
+			cameraUp = glm::cross(cameraFront, cameraRight);
 
 			// LookAt matrix which allows easy camera manipulation
 			glm::mat4 view = glm::mat4(1.f);
 			//view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-			view = glm::lookAt(cameraPos, cameraPos + cameraFront, this->cameraUp);
+			view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 			return view;
 		}
@@ -53,4 +48,5 @@ class Camera {
 		glm::vec3 cameraPos 	= glm::vec3(0.0f, 0.0f, 3.0f);
 		glm::vec3 cameraFront 	= glm::vec3(0.0f, 0.0f, -1.0f);
 		glm::vec3 cameraUp 		= glm::vec3(0.0f, 1.0f, 0.0f);
+		const glm::vec3 WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 };
