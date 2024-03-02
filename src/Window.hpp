@@ -263,14 +263,19 @@ class Window {
 			cube.setInt("texture1", 0);	// Set the first texture as the background/base
 			cube.setInt("texture2", 1);	// Set the second texture as the overlay
 
-			camera.updateCameraPosition(	// Update camera position for view calculations
-				keyboard[SDL_SCANCODE_W], 
-				keyboard[SDL_SCANCODE_S], 
-				keyboard[SDL_SCANCODE_A], 
-				keyboard[SDL_SCANCODE_D], 
-				deltaTime
-			);
-			camera.updateCameraDirection();
+			// Only update the camera if its not paused
+			if(!paused){
+				camera.updateCameraPosition(	// Update camera position for view calculations
+					keyboard[SDL_SCANCODE_W], 
+					keyboard[SDL_SCANCODE_S], 
+					keyboard[SDL_SCANCODE_A], 
+					keyboard[SDL_SCANCODE_D], 
+					deltaTime
+				);
+				camera.updateCameraDirection();
+			}
+
+			// Update cube
 			cube.rotate(SDL_GetTicks()/20, 0.5f, 1.f, 0.f);
 			cube.scale(0.5f, 0.5f, 0.5f);
 			cube.perspective(
