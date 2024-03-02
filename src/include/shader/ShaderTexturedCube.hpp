@@ -179,7 +179,7 @@ class ShaderTexturedCube : public Shader {
 		 * @brief Applies the appropriate transforms to show perspective or not
 		 * @param hasPerspective A bool representing whether the quad should be given perspective
 		*/
-		void perspective(const bool hasCamera, glm::mat4 cameraView) {
+		void perspective(const bool hasCamera, const glm::mat4 cameraView, const float fov) {
 			glm::mat4 model = glm::mat4(1.f);
 			glm::mat4 view 	= glm::mat4(1.f);
 			glm::mat4 projection = glm::mat4(1.f);
@@ -188,7 +188,7 @@ class ShaderTexturedCube : public Shader {
 				//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.f, 0.f, 0.f));
 				model = glm::translate(model, glm::vec3(0.f, 0.f, 0.f));
 				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.f, 0.3f, 0.5f));
-				projection = glm::perspective(glm::radians(45.0f), 640.f / 480.f, 0.1f, 100.0f);
+				projection = glm::perspective(glm::radians(fov), 640.f / 480.f, 0.1f, 100.0f);
 				view = cameraView;
 			}
 
