@@ -6,6 +6,12 @@
 
 class Camera {
 	public:
+		Camera() {
+			pitch = 0.f;
+			yaw = -90.f;
+			fov = 45.f;
+		}
+		~Camera() {}
 		/**
 		 * @brief Caclulates the view matrix
 		 * @return A glm::mat4 representing the camera's view
@@ -43,8 +49,76 @@ class Camera {
 			if(right)
 				cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * frameSpeed;
 		}
+		void updateCameraDirection() {
+			glm::vec3 direction(0.f, 0.f, 0.f);
+			
+			direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+			direction.y = sin(glm::radians(pitch));
+			direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
+			cameraFront = glm::normalize(direction);
+		}
+		void incPitch(const float offset) {
+			this->pitch += offset;
+
+			// Limit movement
+			if(this->pitch > 89.0f)
+				this->pitch =  89.0f;
+			if(this->pitch < -89.0f)
+				this->pitch = -89.0f;
+		}
+		void incYaw(const float offset) {
+			this->yaw += offset;
+		}
+		void incFOV(const float offset) {
+			this->fov += offset;
+			
+			// Limit
+			if (this->fov < MIN_FOV)
+				this->fov = MIN_FOV;
+			if (this->fov > MAX_FOV)
+				this->fov = MAX_FOV;
+		}
+		void setPitch(const float pitch) {
+			this->pitch = pitch;
+
+			// Limit movement
+			if(this->pitch > 89.0f)
+				this->pitch =  89.0f;
+			if(this->pitch < -89.0f)
+				this->pitch = -89.0f;
+		}
+		void setYaw(const float yaw) {
+			this->yaw = yaw;
+		}
+		void setFOV(const float fov) {
+			this->fov = fov;
+			
+			// Limit
+			if (this->fov < MIN_FOV)
+				this->fov = MIN_FOV;
+			if (this->fov > MAX_FOV)
+				this->fov = MAX_FOV;
+		}
+		float getPitch() {
+			return pitch;
+		}
+		float getYaw() {
+			return yaw;
+		}
+		float getFOV() {
+			return fov;
+		}
 	private:
 		float cameraSpeed = 2.5f;
+
+		float pitch;
+		float yaw;
+		float fov;
+
+		const float MIN_FOV = 1.f;
+		const float MAX_FOV = 45.f;
+
 		glm::vec3 cameraPos 	= glm::vec3(0.0f, 0.0f, 3.0f);
 		glm::vec3 cameraFront 	= glm::vec3(0.0f, 0.0f, -1.0f);
 		glm::vec3 cameraUp 		= glm::vec3(0.0f, 1.0f, 0.0f);
