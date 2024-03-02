@@ -91,7 +91,12 @@ class Window {
 			}
 			
 			keyboard = SDL_GetKeyboardState(NULL);	// Get pointer to internal keyboard state
-			
+			mouseButtonState = SDL_GetMouseState(&mouseX, &mouseY);	// Initialize mouse position and buttons
+
+			paused = true;
+			SDL_SetRelativeMouseMode(SDL_FALSE);
+			SDL_ShowCursor(SDL_TRUE);
+
 			return true;	// Success
 		}
 		/// Initialize OpenGL components
@@ -174,17 +179,47 @@ class Window {
 								}
 							}
 							break;
-						}
-						case SDL_KEYDOWN:
-							// Quit with escape key
+						} case SDL_KEYDOWN: {
+							// Toggle mouse visibility and capture state with escape key
 							if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){
-								cube.freeProgram();
-								SDL_DestroyWindow(window);
+								paused = !paused;
+								SDL_SetRelativeMouseMode((SDL_bool)(!paused));
+								SDL_ShowCursor((SDL_bool)(paused));
 
-								event.type = SDL_QUIT;
-								SDL_PushEvent(&event);
+								if(!paused) mouseButtonState = SDL_GetMouseState(&mouseX, &mouseY);
 							}
 							break;
+						} case SDL_MOUSEMOTION: {
+							if(paused) break;
+
+							int lastX = mouseX;
+							int lastY = mouseY;
+							mouseButtonState = SDL_GetMouseState(&mouseX, &mouseY);	// Get buttons and set x,y
+							
+							float offsetX = mouseX - lastX;
+							float offsetY = lastY - mouseY;	// Reverse to fit coordinate systems are flipped
+							// Adjust for sensitivity
+							offsetX *= SENSITIVITY;
+							offsetY *= SENSITIVITY;
+
+							camera.incPitch(offsetY);
+							camera.incYaw(offsetX);
+
+							switch(mouseButtonState) {
+								case SDL_BUTTON(1):
+									break;
+								case SDL_BUTTON(2):
+									break;
+								case SDL_BUTTON(3):
+									break;
+							}
+							break;
+						} case SDL_MOUSEWHEEL: {
+							if(paused) break;
+							
+							camera.incFOV(-event.wheel.y * 2.5f);
+							break;
+						} 
 						case SDL_QUIT:	// Quit window
 							SDL_Quit();	// Cleanup subsystems
 							return;	// Exit loop
@@ -228,8 +263,6 @@ class Window {
 			cube.setInt("texture1", 0);	// Set the first texture as the background/base
 			cube.setInt("texture2", 1);	// Set the second texture as the overlay
 
-			std::cout << "W: " << (bool)keyboard[SDL_SCANCODE_W] << "S: " << (bool)keyboard[SDL_SCANCODE_S] << "A: " << (bool)keyboard[SDL_SCANCODE_A] << "D: " << (bool)keyboard[SDL_SCANCODE_D] << std::endl;
-
 			camera.updateCameraPosition(	// Update camera position for view calculations
 				keyboard[SDL_SCANCODE_W], 
 				keyboard[SDL_SCANCODE_S], 
@@ -237,11 +270,13 @@ class Window {
 				keyboard[SDL_SCANCODE_D], 
 				deltaTime
 			);
+			camera.updateCameraDirection();
 			cube.rotate(SDL_GetTicks()/20, 0.5f, 1.f, 0.f);
 			cube.scale(0.5f, 0.5f, 0.5f);
 			cube.perspective(
 				true, 
-				camera.calcCameraView()
+				camera.calcCameraView(), 
+				camera.getFOV()
 			);
 
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
@@ -253,19 +288,29 @@ class Window {
 			SDL_GL_SwapWindow(window);	// Update
 			glFinish();
 		}
-
 	private:
 		SDL_Window* window = NULL;		// The window
 		SDL_Renderer* renderer = NULL;	// The renderer for the window, uses hardware acceleration
 		SDL_GLContext gContext = NULL;	// The OpenGL context
 
+		// Running Window Variables
 		int width;			// The running drawable window width
 		int height;			// The running drawable window width
 		Uint32 deltaTime;	// The running time between frames
 		Uint32 prevTime;	// The running time from init last frame was
-		const Uint8* keyboard;	// The running state of the keyboard
+		bool paused;
+
+		// Running Mouse Variables
+		int mouseX;					// Mouse x position
+		int mouseY;					// Mouse y position
+		Uint32 mouseButtonState;	// Mouse buttons state
+
+		// Constants
+		const Uint8* keyboard;						// The running state of the keyboard
+		const float SENSITIVITY = 0.1f;				// Mouse sensitivity
 		const float MIN_FRAME_TIME = 16.66666667;	// Minimum frame time in ms
 
+		// Objects
 		ShaderTexturedCube cube;
 		Camera camera;
 };
