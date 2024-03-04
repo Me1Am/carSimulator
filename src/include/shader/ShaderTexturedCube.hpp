@@ -199,10 +199,10 @@ class ShaderTexturedCube : public Shader {
 		/**
 		 * @brief Sets a Vec4 uniform variable's value
 		 * @param field The name of the variable
-		 * @param value The first value of the Vec4
-		 * @param value The second value of the Vec4
-		 * @param value The third value of the Vec4
-		 * @param value The fourth value of the Vec4
+		 * @param value1 The first value of the Vec4
+		 * @param value2 The second value of the Vec4
+		 * @param value3 The third value of the Vec4
+		 * @param value4 The fourth value of the Vec4
 		 */
 		void setFloat4(const std::string &field, const float value1, const float value2, const float value3, const float value4) {
 			glUniform4f(glGetUniformLocation(programID, field.c_str()), value1, value2, value3, value4);
