@@ -19,7 +19,6 @@ class ShaderTexturedCube : public Shader {
 		void freeProgram() {
 			glDeleteVertexArrays(1, &vao);
 			glDeleteBuffers(1, &vbo);
-			glDeleteBuffers(1, &ebo);
 			glDeleteProgram(programID);
 		}
 		/**
@@ -179,18 +178,15 @@ class ShaderTexturedCube : public Shader {
 		 * @brief Applies the appropriate transforms to show perspective or not
 		 * @param hasPerspective A bool representing whether the quad should be given perspective
 		*/
-		void perspective(const bool hasCamera, const glm::mat4 cameraView, const float fov) {
+		void perspective(const glm::mat4 cameraView, const float fov) {
 			glm::mat4 model = glm::mat4(1.f);
 			glm::mat4 view 	= glm::mat4(1.f);
 			glm::mat4 projection = glm::mat4(1.f);
 
-			if(hasCamera){
-				//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.f, 0.f, 0.f));
-				model = glm::translate(model, glm::vec3(0.f, 0.f, 0.f));
-				model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.f, 0.3f, 0.5f));
-				projection = glm::perspective(glm::radians(fov), 640.f / 480.f, 0.1f, 100.0f);
-				view = cameraView;
-			}
+			model = glm::translate(model, glm::vec3(0.f, 0.f, 0.f));
+			model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.f, 0.3f, 0.5f));
+			projection = glm::perspective(glm::radians(fov), 640.f / 480.f, 0.1f, 100.0f);
+			view = cameraView;
 
 			glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -208,6 +204,16 @@ class ShaderTexturedCube : public Shader {
 			glUniform4f(glGetUniformLocation(programID, field.c_str()), value1, value2, value3, value4);
 		}
 		/**
+		 * @brief Sets a Vec3 uniform variable's value
+		 * @param field The name of the variable
+		 * @param value1 The first value of the Vec3
+		 * @param value2 The second value of the Vec3
+		 * @param value3 The third value of the Vec3
+		 */
+		void setFloat3(const std::string &field, const float value1, const float value2, const float value3) {
+			glUniform3f(glGetUniformLocation(programID, field.c_str()), value1, value2, value3);
+		}
+		/**
 		 * @brief Gets the shader's VAO
 		 * @return The GLuint representing the VAO
 		*/
@@ -220,13 +226,6 @@ class ShaderTexturedCube : public Shader {
 		*/
 		GLuint getVBO() {
 			return vbo;
-		}
-		/**
-		 * @brief Gets the shader's IBO
-		 * @return The GLuint representing the IBO
-		*/
-		GLuint getEBO() {
-			return ebo;
 		}
 		/**
 		 * @brief Gets the shader's texture
@@ -248,11 +247,6 @@ class ShaderTexturedCube : public Shader {
 	private:
 		GLuint vao = 0;		// OpenGL vertex array object, stores vertex attrib calls
 		GLuint vbo = 0;		// OpenGL vertex buffer object
-		GLuint ebo = 0;		// OpenGL element buffer object, 
 		GLuint texture1;	// OpenGL texture object
 		GLuint texture2;	// OpenGL texture object
-
-		glm::vec3 cameraPos 	= glm::vec3(0.0f, 0.0f, 3.0f);
-		glm::vec3 cameraFront 	= glm::vec3(0.0f, 0.0f, -1.0f);
-		glm::vec3 cameraUp 		= glm::vec3(0.0f, 1.0f, 0.0f);
 };
