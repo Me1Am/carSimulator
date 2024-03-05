@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "include/shader/ShaderTexturedCube.hpp"
+#include "include/shader/ShaderLightSource.hpp"
 #include "include/Camera.hpp"
 
 class Window {
@@ -22,7 +23,6 @@ class Window {
 
 			SDL_Quit();	// Quit SDL
 		}
-
 		/**
 		 * @brief Initializes subsystems and creates the window and other resources
 		 * @return A bool whether the creation was successful or not
@@ -263,6 +263,10 @@ class Window {
 			cube.setInt("texture1", 0);	// Set the first texture as the background/base
 			cube.setInt("texture2", 1);	// Set the second texture as the overlay
 
+			//cube.setFloat3("objectColor", 1.f, 0.5f, 0.31f);
+			cube.setFloat3("objectColor", 1.f, 1.f, 1.f);	// Set to 1 to use texture colors
+			cube.setFloat3("lightColor", 1.f, 1.f, 1.f);
+
 			// Only update the camera if its not paused
 			if(!paused){
 				camera.updateCameraPosition(	// Update camera position for view calculations
@@ -279,7 +283,6 @@ class Window {
 			cube.rotate(SDL_GetTicks()/20, 0.5f, 1.f, 0.f);
 			cube.scale(0.5f, 0.5f, 0.5f);
 			cube.perspective(
-				true, 
 				camera.calcCameraView(), 
 				camera.getFOV()
 			);
@@ -287,6 +290,15 @@ class Window {
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
 			glDrawArrays(GL_TRIANGLES, 0, 36);	// Draw
 			
+			glUseProgram(lightSource.getProgramID());
+			glBindVertexArray(lightSource.getVAO());
+			lightSource.setPos(3.f, 3.f, 3.f);
+			lightSource.perspective(
+				camera.calcCameraView(), 
+				camera.getFOV()
+			);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
 			glUseProgram(0);	// Unbind
 			
 			glFlush();
@@ -317,5 +329,6 @@ class Window {
 
 		// Objects
 		ShaderTexturedCube cube;
+		ShaderLightSource lightSource;
 		Camera camera;
 };
