@@ -1,7 +1,8 @@
+#pragma once
+
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include <SOIL/SOIL.h>
-
 
 #include <iostream>
 #include <fstream>
