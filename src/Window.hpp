@@ -258,13 +258,11 @@ class Window {
 			glBindTexture(GL_TEXTURE_2D, cube.getTexture(1));
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, cube.getTexture(2));
-			glBindVertexArray(cube.getVAO());	// Use the VAO which sets up the VBO
 
 			cube.setInt("texture1", 0);	// Set the first texture as the background/base
 			cube.setInt("texture2", 1);	// Set the second texture as the overlay
 
-			//cube.setFloat3("objectColor", 1.f, 0.5f, 0.31f);
-			cube.setFloat3("objectColor", 1.f, 1.f, 1.f);	// Set to 1 to use texture colors
+			cube.setFloat3("objectColor", 1.f, 0.5f, 0.31f);	// Set to 1 to use texture colors
 			cube.setFloat3("lightColor", 1.f, 1.f, 1.f);
 
 			// Only update the camera if its not paused
@@ -287,16 +285,16 @@ class Window {
 				camera.getFOV()
 			);
 
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// Wireframe
+			glBindVertexArray(cube.getVAO());
 			glDrawArrays(GL_TRIANGLES, 0, 36);	// Draw
 			
 			glUseProgram(lightSource.getProgramID());
-			glBindVertexArray(lightSource.getVAO());
-			lightSource.setPos(3.f, 3.f, 3.f);
+			lightSource.setPos(1.2f, 1.f, 2.f);
 			lightSource.perspective(
 				camera.calcCameraView(), 
 				camera.getFOV()
 			);
+			glBindVertexArray(lightSource.getVAO());
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 			glUseProgram(0);	// Unbind
