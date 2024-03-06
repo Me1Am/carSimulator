@@ -106,14 +106,16 @@ class Window {
 			glViewport(0, 0, width, height);
 			glEnable(GL_DEPTH_TEST);
 
-			// Load basic shader program
+			// Load shaders
 			if(!cube.loadProgram()){
-				printf( "Unable to load basic shader!\n" );
+				printf( "Unable to load cube shader!\n" );
 				return false;
 			}
 
-			// Bind shader program
-			cube.bind();
+			if(!lightSource.loadProgram()){
+				printf( "Unable to load light shader!\n" );
+				return false;
+			}
 			
 			return true;
 		}
@@ -252,7 +254,8 @@ class Window {
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Set clear color
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glUseProgram(cube.getProgramID());
+			// Cube
+			cube.bind();
 			
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, cube.getTexture(1));
@@ -288,7 +291,8 @@ class Window {
 			glBindVertexArray(cube.getVAO());
 			glDrawArrays(GL_TRIANGLES, 0, 36);	// Draw
 			
-			glUseProgram(lightSource.getProgramID());
+			// Light Source
+			lightSource.bind();
 			lightSource.setPos(1.2f, 1.f, 2.f);
 			lightSource.perspective(
 				camera.calcCameraView(), 
