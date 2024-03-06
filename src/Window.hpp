@@ -281,8 +281,8 @@ class Window {
 			}
 
 			// Update cube
-			cube.rotate(SDL_GetTicks()/20, 0.5f, 1.f, 0.f);
-			cube.scale(0.5f, 0.5f, 0.5f);
+			cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
+			cube.setScale(0.5f, 0.5f, 0.5f);
 			cube.perspective(
 				camera.calcCameraView(), 
 				camera.getFOV()
@@ -294,6 +294,7 @@ class Window {
 			// Light Source
 			lightSource.bind();
 			lightSource.setPos(1.2f, 1.f, 2.f);
+			lightSource.setScale(0.2f, 0.2f, 0.2f);
 			lightSource.perspective(
 				camera.calcCameraView(), 
 				camera.getFOV()
