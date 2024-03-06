@@ -148,33 +148,6 @@ class ShaderTexturedCube : public Shader {
 			return true;
 		}
 		/**
-		 * @brief Rotates the object by the given degrees, on the given axis
-		 * @param degrees Float representing the amount to rotate by
-		 * @param xAxis Float representing the x axis value for applying the rotation
-		 * @param yAxis Float representing the y axis value for applying the rotation
-		 * @param zAxis Float representing the z axis value for applying the rotation
-		 */
-		void rotate(const float degrees, const float xAxis, const float yAxis, const float zAxis) {
-			glm::mat4 matrix = glm::mat4(1.0f);
-			matrix = glm::rotate(matrix, glm::radians(degrees), glm::vec3(xAxis, yAxis, zAxis));
-
-			// Apply rotation
-			glUniformMatrix4fv(glGetUniformLocation(programID, "rotate"), 1, GL_FALSE, glm::value_ptr(matrix));	
-		}
-		/**
-		 * @brief Scales the object by the given values
-		 * @param xScale Float representing the x scale factor
-		 * @param yScale Float representing the y scale factor
-		 * @param zScale Float representing the z scale factor
-		 */
-		void scale(const float xScale, const float yScale, const float zScale) {
-			glm::mat4 matrix = glm::mat4(1.0f);
-			matrix = glm::scale(matrix, glm::vec3(xScale, yScale, zScale));
-
-			// Apply scale
-			glUniformMatrix4fv(glGetUniformLocation(programID, "scale"), 1, GL_FALSE, glm::value_ptr(matrix));
-		}
-		/**
 		 * @brief Applies the appropriate transforms to show perspective or not
 		 * @param hasPerspective A bool representing whether the quad should be given perspective
 		*/
@@ -183,14 +156,36 @@ class ShaderTexturedCube : public Shader {
 			glm::mat4 view 	= glm::mat4(1.f);
 			glm::mat4 projection = glm::mat4(1.f);
 
-			model = glm::translate(model, glm::vec3(0.f, 0.f, 0.f));
-			model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.f, 0.3f, 0.5f));
+			model = glm::translate(model, pos);						// Set position
+			model = glm::scale(model, scale);						// Set scale
+			model = glm::rotate(model, rotationDeg, rotationAxis);	// Set rotation
+			//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.f, 0.3f, 0.5f));
 			projection = glm::perspective(glm::radians(fov), 640.f / 480.f, 0.1f, 100.0f);
 			view = cameraView;
 
 			glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 			glUniformMatrix4fv(glGetUniformLocation(programID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		}
+		/**
+		 * @brief Sets the rotation of the object by the given degrees, on the given axis
+		 * @param degrees Float representing the amount to rotate by
+		 * @param xAxis Float representing the x axis value for applying the rotation
+		 * @param yAxis Float representing the y axis value for applying the rotation
+		 * @param zAxis Float representing the z axis value for applying the rotation
+		 */
+		void setRotation(const float degrees, const float xAxis, const float yAxis, const float zAxis) {
+			rotationDeg = degrees;
+			rotationAxis = glm::vec3(xAxis, yAxis, zAxis);	
+		}
+		/**
+		 * @brief Sets the scale ratio for the object
+		 * @param xScale Float representing the x scale factor
+		 * @param yScale Float representing the y scale factor
+		 * @param zScale Float representing the z scale factor
+		 */
+		void setScale(const float xScale, const float yScale, const float zScale) {
+			scale = glm::vec3(xScale, yScale, zScale);
 		}
 		/**
 		 * @brief Sets a Vec4 uniform variable's value
@@ -249,4 +244,10 @@ class ShaderTexturedCube : public Shader {
 		GLuint vbo = 0;		// OpenGL vertex buffer object
 		GLuint texture1;	// OpenGL texture object
 		GLuint texture2;	// OpenGL texture object
+
+		GLfloat rotationDeg = 0.f;
+
+		glm::vec3 pos = glm::vec3(0.f, 0.f, 0.f);
+		glm::vec3 scale = glm::vec3(1.f, 1.f, 1.f);
+		glm::vec3 rotationAxis = glm::vec3(0.f, 0.f, 0.f);
 };

@@ -111,33 +111,6 @@ class ShaderLightSource : public Shader {
 			return true;
 		}
 		/**
-		 * @brief Rotates the object by the given degrees, on the given axis
-		 * @param degrees Float representing the amount to rotate by
-		 * @param xAxis Float representing the x axis value for applying the rotation
-		 * @param yAxis Float representing the y axis value for applying the rotation
-		 * @param zAxis Float representing the z axis value for applying the rotation
-		 */
-		void rotate(const float degrees, const float xAxis, const float yAxis, const float zAxis) {
-			glm::mat4 matrix = glm::mat4(1.0f);
-			matrix = glm::rotate(matrix, glm::radians(degrees), glm::vec3(xAxis, yAxis, zAxis));
-
-			// Apply rotation
-			glUniformMatrix4fv(glGetUniformLocation(programID, "rotate"), 1, GL_FALSE, glm::value_ptr(matrix));	
-		}
-		/**
-		 * @brief Scales the object by the given values
-		 * @param xScale Float representing the x scale factor
-		 * @param yScale Float representing the y scale factor
-		 * @param zScale Float representing the z scale factor
-		 */
-		void scale(const float xScale, const float yScale, const float zScale) {
-			glm::mat4 matrix = glm::mat4(1.0f);
-			matrix = glm::scale(matrix, glm::vec3(xScale, yScale, zScale));
-
-			// Apply scale
-			glUniformMatrix4fv(glGetUniformLocation(programID, "scale"), 1, GL_FALSE, glm::value_ptr(matrix));
-		}
-		/**
 		 * @brief Applies the appropriate transforms to show perspective or not
 		 * @param hasPerspective A bool representing whether the quad should be given perspective
 		*/
@@ -146,13 +119,35 @@ class ShaderLightSource : public Shader {
 			glm::mat4 view 	= glm::mat4(1.f);
 			glm::mat4 projection = glm::mat4(1.f);
 
-			model = glm::translate(model, glm::vec3(1.2f, 1.f, 2.f));
+			model = glm::translate(model, pos);						// Set position
+			model = glm::scale(model, scale);						// Set scale
+			model = glm::rotate(model, rotationDeg, rotationAxis);	// Set rotation
 			projection = glm::perspective(glm::radians(fov), 640.f / 480.f, 0.1f, 100.0f);
 			view = cameraView;
 
 			glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 			glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 			glUniformMatrix4fv(glGetUniformLocation(programID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		}
+		/**
+		 * @brief Sets the rotation of the object by the given degrees, on the given axis
+		 * @param degrees Float representing the amount to rotate by
+		 * @param xAxis Float representing the x axis value for applying the rotation
+		 * @param yAxis Float representing the y axis value for applying the rotation
+		 * @param zAxis Float representing the z axis value for applying the rotation
+		 */
+		void setRotation(const float degrees, const float xAxis, const float yAxis, const float zAxis) {
+			rotationDeg = degrees;
+			rotationAxis = glm::vec3(xAxis, yAxis, zAxis);	
+		}
+		/**
+		 * @brief Sets the scale ratio for the object
+		 * @param xScale Float representing the x scale factor
+		 * @param yScale Float representing the y scale factor
+		 * @param zScale Float representing the z scale factor
+		 */
+		void setScale(const float xScale, const float yScale, const float zScale) {
+			scale = glm::vec3(xScale, yScale, zScale);
 		}
 		/**
 		 * @brief Sets a Vec3 uniform variable's value
@@ -163,6 +158,15 @@ class ShaderLightSource : public Shader {
 		 */
 		void setFloat3(const std::string &field, const float value1, const float value2, const float value3) {
 			glUniform3f(glGetUniformLocation(programID, field.c_str()), value1, value2, value3);
+		}
+		/**
+		 * @brief Sets the light source's position
+		 * @param posX The global x coordinate
+		 * @param posY The global y coordinate
+		 * @param posZ The global z coordinate
+		*/
+		void setPos(const float posX, const float posY, const float posZ) {
+			pos = glm::vec3(posX, posY, posZ);
 		}
 		/**
 		 * @brief Gets the shader's VAO
@@ -178,18 +182,13 @@ class ShaderLightSource : public Shader {
 		GLuint getVBO() {
 			return vbo;
 		}
-		/**
-		 * @brief Sets the light source's position
-		 * @param posX The global x coordinate
-		 * @param posY The global y coordinate
-		 * @param posZ The global z coordinate
-		*/
-	void setPos(const float posX, const float posY, const float posZ) {
-		pos = glm::vec3(posX, posY, posZ);
-	}
 	private:
 		GLuint vao = 0;		// OpenGL vertex array object, stores vertex attrib calls
 		GLuint vbo = 0;		// OpenGL vertex buffer object
 
+		GLfloat rotationDeg = 0.f;
+
 		glm::vec3 pos = glm::vec3(0.f, 0.f, 0.f);
+		glm::vec3 scale = glm::vec3(1.f, 1.f, 1.f);
+		glm::vec3 rotationAxis = glm::vec3(1.f, 1.f, 1.f);
 };
