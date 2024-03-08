@@ -100,6 +100,9 @@ class Camera {
 			if (this->fov > MAX_FOV)
 				this->fov = MAX_FOV;
 		}
+		glm::vec3 getPos() {
+			return cameraPos;
+		}
 		float getPitch() {
 			return pitch;
 		}
