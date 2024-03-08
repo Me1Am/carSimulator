@@ -52,47 +52,48 @@ class ShaderTexturedCube : public Shader {
 
 			glClearColor(0.f, 0.f, 0.f, 0.f);	// Initialize clear color
 			GLfloat vertexData[] = {
-				-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-				 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-				 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-				 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-				-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-				-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+				// Vertex Positions    // Normal Verts	  // Texture Positions
+				-0.5f, -0.5f, -0.5f,   0.f,  0.f, -1.f,   0.f, 0.f,
+				 0.5f, -0.5f, -0.5f,   0.f,  0.f, -1.f,   1.f, 0.f,
+				 0.5f,  0.5f, -0.5f,   0.f,  0.f, -1.f,   1.f, 1.f,
+				 0.5f,  0.5f, -0.5f,   0.f,  0.f, -1.f,   1.f, 1.f,
+				-0.5f,  0.5f, -0.5f,   0.f,  0.f, -1.f,   0.f, 1.f,
+				-0.5f, -0.5f, -0.5f,   0.f,  0.f, -1.f,   0.f, 0.f,
 
-				-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-				 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-				 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-				 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-				-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-				-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+				-0.5f, -0.5f,  0.5f,   0.f,  0.f,  1.f,   0.f, 0.f,
+				 0.5f, -0.5f,  0.5f,   0.f,  0.f,  1.f,   1.f, 0.f,
+				 0.5f,  0.5f,  0.5f,   0.f,  0.f,  1.f,   1.f, 1.f,
+				 0.5f,  0.5f,  0.5f,   0.f,  0.f,  1.f,   1.f, 1.f,
+				-0.5f,  0.5f,  0.5f,   0.f,  0.f,  1.f,   0.f, 1.f,
+				-0.5f, -0.5f,  0.5f,   0.f,  0.f,  1.f,   0.f, 0.f,
 
-				-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-				-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-				-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-				-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-				-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-				-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+				-0.5f,  0.5f,  0.5f,   1.f,  0.f,  0.f,   1.f, 0.f,
+				-0.5f,  0.5f, -0.5f,   1.f,  0.f,  0.f,   1.f, 1.f,
+				-0.5f, -0.5f, -0.5f,   1.f,  0.f,  0.f,   0.f, 1.f,
+				-0.5f, -0.5f, -0.5f,   1.f,  0.f,  0.f,   0.f, 1.f,
+				-0.5f, -0.5f,  0.5f,   1.f,  0.f,  0.f,   0.f, 0.f,
+				-0.5f,  0.5f,  0.5f,   1.f,  0.f,  0.f,   1.f, 0.f,
 
-				 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-				 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-				 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-				 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-				 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-				 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+				 0.5f,  0.5f,  0.5f,   1.f,  0.f,  0.f,   1.f, 0.f,
+				 0.5f,  0.5f, -0.5f,   1.f,  0.f,  0.f,   1.f, 1.f,
+				 0.5f, -0.5f, -0.5f,   1.f,  0.f,  0.f,   0.f, 1.f,
+				 0.5f, -0.5f, -0.5f,   1.f,  0.f,  0.f,   0.f, 1.f,
+				 0.5f, -0.5f,  0.5f,   1.f,  0.f,  0.f,   0.f, 0.f,
+				 0.5f,  0.5f,  0.5f,   1.f,  0.f,  0.f,   1.f, 0.f,
 
-				-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-				 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-				 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-				 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-				-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-				-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-				-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-				 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-				 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-				 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-				-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-				-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+				-0.5f, -0.5f, -0.5f,   0.f, -1.f,  0.f,   0.f, 1.f,
+				 0.5f, -0.5f, -0.5f,   0.f, -1.f,  0.f,   1.f, 1.f,
+				 0.5f, -0.5f,  0.5f,   0.f, -1.f,  0.f,   1.f, 0.f,
+				 0.5f, -0.5f,  0.5f,   0.f, -1.f,  0.f,   1.f, 0.f,
+				-0.5f, -0.5f,  0.5f,   0.f, -1.f,  0.f,   0.f, 0.f,
+				-0.5f, -0.5f, -0.5f,   0.f, -1.f,  0.f,   0.f, 1.f,
+				
+				-0.5f,  0.5f, -0.5f,   0.f,  1.f,  0.f,   0.f, 1.f,
+				 0.5f,  0.5f, -0.5f,   0.f,  1.f,  0.f,   1.f, 1.f,
+				 0.5f,  0.5f,  0.5f,   0.f,  1.f,  0.f,   1.f, 0.f,
+				 0.5f,  0.5f,  0.5f,   0.f,  1.f,  0.f,   1.f, 0.f,
+				-0.5f,  0.5f,  0.5f,   0.f,  1.f,  0.f,   0.f, 0.f,
+				-0.5f,  0.5f, -0.5f,   0.f,  1.f,  0.f,   0.f, 1.f
 			};
 
 			// Create objects
@@ -105,11 +106,14 @@ class ShaderTexturedCube : public Shader {
 			glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);	// Set data
 
 			// Set vertex position
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
 			glEnableVertexAttribArray(0);	// Enable the attribute at index 0
-			// Set texture position
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+			// Set normals
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 			glEnableVertexAttribArray(1);	// Enable the attribute at index 1
+			// Set texture position
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
+			glEnableVertexAttribArray(2);	// Enable the attribute at index 1
 
 			// Texture 1
 			glGenTextures(1, &texture1);	// Create one texture and assign to 'texture'
