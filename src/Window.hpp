@@ -282,6 +282,7 @@ class Window {
 
 			// Update cube
 			cube.setFloat3("lightPos", 1.2f, 1.f, 2.f);
+			cube.setFloat3("cameraPos", camera.getPos());
 			cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
 			cube.setScale(0.5f, 0.5f, 0.5f);
 			cube.perspective(
