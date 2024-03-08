@@ -169,6 +169,13 @@ class ShaderLightSource : public Shader {
 			pos = glm::vec3(posX, posY, posZ);
 		}
 		/**
+		 * @brief Gets the position of the light source
+		 * @return The GLuint representing the position
+		*/
+		glm::vec3 getPos() {
+			return pos;
+		}
+		/**
 		 * @brief Gets the shader's VAO
 		 * @return The GLuint representing the VAO
 		*/

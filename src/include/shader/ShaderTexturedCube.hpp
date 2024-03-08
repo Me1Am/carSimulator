@@ -223,6 +223,13 @@ class ShaderTexturedCube : public Shader {
 			glUniform3f(glGetUniformLocation(programID, field.c_str()), vec3.x, vec3.y, vec3.z);
 		}
 		/**
+		 * @brief Gets the position of the cube
+		 * @return The GLuint representing the position
+		*/
+		glm::vec3 getPos() {
+			return pos;
+		}
+		/**
 		 * @brief Gets the shader's VAO
 		 * @return The GLuint representing the VAO
 		*/
