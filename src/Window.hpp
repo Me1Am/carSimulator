@@ -267,7 +267,7 @@ class Window {
 
 			cube.setFloat3("objectColor", 1.f, 1.f, 1.f);	// Set to 1 to use texture colors
 			cube.setFloat3("lightColor", 0.988f, 0.976f, 0.850f);
-			cube.setFloat3("lightPos", 1.2f, 1.f, 2.f);
+			cube.setFloat3("lightPos", lightSource.getPos());
 			cube.setFloat3("cameraPos", camera.getPos());
 
 			// Only update the camera if its not paused
