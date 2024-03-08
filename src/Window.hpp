@@ -254,6 +254,18 @@ class Window {
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Set clear color
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			// Only update the camera if its not paused
+			if(!paused){
+				camera.updateCameraPosition(	// Update camera position for view calculations
+					keyboard[SDL_SCANCODE_W], 
+					keyboard[SDL_SCANCODE_S], 
+					keyboard[SDL_SCANCODE_A], 
+					keyboard[SDL_SCANCODE_D], 
+					deltaTime
+				);
+				camera.updateCameraDirection();
+			}
+
 			// Cube
 			cube.bind();
 			
@@ -269,18 +281,6 @@ class Window {
 			cube.setFloat3("lightColor", 0.988f, 0.976f, 0.850f);
 			cube.setFloat3("lightPos", lightSource.getPos());
 			cube.setFloat3("cameraPos", camera.getPos());
-
-			// Only update the camera if its not paused
-			if(!paused){
-				camera.updateCameraPosition(	// Update camera position for view calculations
-					keyboard[SDL_SCANCODE_W], 
-					keyboard[SDL_SCANCODE_S], 
-					keyboard[SDL_SCANCODE_A], 
-					keyboard[SDL_SCANCODE_D], 
-					deltaTime
-				);
-				camera.updateCameraDirection();
-			}
 
 			// Update cube
 			cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
