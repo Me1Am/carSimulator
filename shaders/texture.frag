@@ -8,6 +8,7 @@ in vec2 TexCoord;
 
 uniform vec3 objectColor;
 uniform vec3 lightColor;
+uniform vec3 cameraPos;
 uniform vec3 lightPos;
 
 uniform sampler2D texture1;
@@ -22,7 +23,14 @@ void main() {
 	vec3 lightDir = normalize(lightPos - FragPos);
 	vec3 diffuse = max(dot(normalize(Normal), lightDir), 0.0) * lightColor;
 
-	vec4 lightResult = vec4(objectColor * (ambientColor + diffuse), 1);
+	// Specular Lighting
+	float shininess = 32;
+	float specularStrength = 0.5;
+	vec3 cameraDir = normalize(cameraPos - FragPos);
+	vec3 reflectDir = reflect(-lightDir, normalize(Normal));
+	vec3 specular = specularStrength * pow(max(dot(cameraDir, reflectDir), 0.0), shininess) * lightColor; 
+
+	vec4 lightResult = vec4(objectColor * (ambientColor + diffuse + specular), 1);
 
 	FragColor = lightResult;
 

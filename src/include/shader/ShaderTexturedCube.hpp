@@ -213,6 +213,16 @@ class ShaderTexturedCube : public Shader {
 			glUniform3f(glGetUniformLocation(programID, field.c_str()), value1, value2, value3);
 		}
 		/**
+		 * @brief Sets a Vec3 uniform variable's value
+		 * @param field The name of the variable
+		 * @param value1 The first value of the Vec3
+		 * @param value2 The second value of the Vec3
+		 * @param value3 The third value of the Vec3
+		 */
+		void setFloat3(const std::string &field, const glm::vec3 &vec3) {
+			glUniform3f(glGetUniformLocation(programID, field.c_str()), vec3.x, vec3.y, vec3.z);
+		}
+		/**
 		 * @brief Gets the shader's VAO
 		 * @return The GLuint representing the VAO
 		*/
