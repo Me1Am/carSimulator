@@ -32,9 +32,9 @@ void main() {
 
 	vec4 lightResult = vec4(objectColor * (ambientColor + diffuse + specular), 1);
 
-	FragColor = lightResult;
+	//FragColor = lightResult;
 
-	//FragColor = lightResult * mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+	FragColor = lightResult * mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
 
     // Rainbow
     // FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2) * vec4(objectColor, 1.0);
