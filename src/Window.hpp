@@ -91,7 +91,6 @@ class Window {
 			}
 			
 			keyboard = SDL_GetKeyboardState(NULL);	// Get pointer to internal keyboard state
-			mouseButtonState = SDL_GetMouseState(&mouseX, &mouseY);	// Initialize mouse position and buttons
 
 			paused = true;
 			SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -187,25 +186,21 @@ class Window {
 								paused = !paused;
 								SDL_SetRelativeMouseMode((SDL_bool)(!paused));
 								SDL_ShowCursor((SDL_bool)(paused));
-
-								if(!paused) mouseButtonState = SDL_GetMouseState(&mouseX, &mouseY);
 							}
 							break;
 						} case SDL_MOUSEMOTION: {
 							if(paused) break;
+							float offsetX = event.motion.xrel;
+							float offsetY = event.motion.yrel;
 
-							int lastX = mouseX;
-							int lastY = mouseY;
-							mouseButtonState = SDL_GetMouseState(&mouseX, &mouseY);	// Get buttons and set x,y
-							
-							float offsetX = mouseX - lastX;
-							float offsetY = lastY - mouseY;	// Reverse to fit coordinate systems are flipped
 							// Adjust for sensitivity
 							offsetX *= SENSITIVITY;
 							offsetY *= SENSITIVITY;
 
-							camera.incPitch(offsetY);
 							camera.incYaw(offsetX);
+							camera.incPitch(-offsetY);
+						} case SDL_MOUSEBUTTONDOWN: {
+							mouseButtonState = SDL_GetMouseState(NULL, NULL);	// Get buttons
 
 							switch(mouseButtonState) {
 								case SDL_BUTTON(1):
@@ -216,6 +211,7 @@ class Window {
 									break;
 							}
 							break;
+
 						} case SDL_MOUSEWHEEL: {
 							if(paused) break;
 							
@@ -323,8 +319,6 @@ class Window {
 		bool paused;
 
 		// Running Mouse Variables
-		int mouseX;					// Mouse x position
-		int mouseY;					// Mouse y position
 		Uint32 mouseButtonState;	// Mouse buttons state
 
 		// Constants
