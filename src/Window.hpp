@@ -228,6 +228,7 @@ class Window {
 				
 				render();	// Render
 
+				// Framerate Handling
 				Uint32 currentTime = SDL_GetTicks();
 				deltaTime = currentTime - prevTime;
 				if(SDL_GL_GetSwapInterval() != 1)
@@ -238,6 +239,7 @@ class Window {
 				prevTime = SDL_GetTicks();
 			}
 		}
+
 		/// Resize Window
 		// TODO Implement real resizing/keep ratio of drawable items
 		void resize() {
@@ -264,7 +266,7 @@ class Window {
 
 			// Cube
 			cube.bind();
-			
+
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, cube.getTexture(1));
 			glActiveTexture(GL_TEXTURE1);
@@ -273,10 +275,17 @@ class Window {
 			cube.setInt("texture1", 0);	// Set the first texture as the background/base
 			cube.setInt("texture2", 1);	// Set the second texture as the overlay
 
-			cube.setFloat3("objectColor", 1.f, 1.f, 1.f);	// Set to 1 to use texture colors
-			cube.setFloat3("lightColor", 0.988f, 0.976f, 0.850f);
-			cube.setFloat3("lightPos", lightSource.getPos());
 			cube.setFloat3("cameraPos", camera.getPos());
+
+			cube.setFloat3("material.ambient", 1.f, 0.5f, 0.31f);	// Set to 1.f for texture colors
+			cube.setFloat3("material.diffuse", 1.f, 0.5f, 0.31f);	// Set to 1.f for texture colors
+			cube.setFloat3("material.specular", 0.5f, 0.5f, 0.5f);
+			cube.setFloat("material.shininess", 32.f);
+			
+			cube.setFloat3("light.position", lightSource.getPos());
+			cube.setFloat3("light.ambient",  0.2f, 0.2f, 0.2f);
+			cube.setFloat3("light.diffuse",  0.5f, 0.5f, 0.5f);
+			cube.setFloat3("light.specular", 1.0f, 1.0f, 1.0f); 
 
 			// Update cube
 			cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
