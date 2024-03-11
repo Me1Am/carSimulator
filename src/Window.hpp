@@ -272,14 +272,16 @@ class Window {
 			glBindTexture(GL_TEXTURE_2D, cube.getTexture(1));
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, cube.getTexture(2));
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, cube.getTexture(3));
 
 			cube.setFloat3("cameraPos", camera.getPos());
 
 			// Material Struct
 			cube.setInt("material.baseTexture", 0);	// Base texture
-			cube.setInt("material.decal", 1);		// Decal
-			cube.setFloat3("material.specular", 0.5f, 0.5f, 0.5f);
-			cube.setFloat("material.shininess", 32.f);
+			cube.setInt("material.specMap", 1);		// Specular Map
+			cube.setInt("material.decal", 2);		// Decal
+			cube.setFloat("material.shininess", 64.f);
 			cube.setFloat("material.decalBias", 0.f);	// Set to 0.f to remove it
 			
 			// Light Struct
