@@ -34,7 +34,7 @@ class ShaderTexturedCube : public Shader {
 			glAttachShader(programID, vertexShader);	// Attach shader to the program
 
 			// Fragment Shader
-			GLuint fragmentShader = FileHandler::compileShader("../shaders/texture.frag");
+			GLuint fragmentShader = FileHandler::compileShader("../shaders/spotlight.frag");
 			glAttachShader(programID, fragmentShader);
 			
 			glLinkProgram(programID);	// Link
@@ -218,7 +218,7 @@ class ShaderTexturedCube : public Shader {
 		 * @param field The name of the variable
 		 * @param vec3 The 3D vector data
 		 */
-		void setFloat3(const std::string &field, const glm::vec3 &vec3) {
+		void setVec3(const std::string &field, const glm::vec3 &vec3) {
 			glUniform3f(glGetUniformLocation(programID, field.c_str()), vec3.x, vec3.y, vec3.z);
 		}
 		/**
