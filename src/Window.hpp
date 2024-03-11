@@ -226,11 +226,13 @@ class Window {
 					}
 				}
 				/* Constant Logic */
-				// Update
-				if(keyboard[SDL_SCANCODE_E]){
-					camera.incRoll(0.01f);	// Roll right(increase)
-				} else if(keyboard[SDL_SCANCODE_Q]) {
-					camera.incRoll(-0.01f);	// Roll left(decrease)
+				// Update roll
+				if(!paused){
+					if(keyboard[SDL_SCANCODE_E]){
+						camera.incRoll(1.5f * deltaTime / 1000);	// Roll right(increase)
+					} else if(keyboard[SDL_SCANCODE_Q]) {
+						camera.incRoll(-1.5f * deltaTime / 1000);	// Roll left(decrease)
+					}
 				}
 
 				render();	// Render
