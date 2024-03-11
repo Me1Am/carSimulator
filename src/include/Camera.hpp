@@ -8,6 +8,7 @@ class Camera {
 	public:
 		Camera() {
 			pitch = 0.f;
+			roll = 0.f;
 			yaw = -90.f;
 			fov = 45.f;
 		}
@@ -16,6 +17,7 @@ class Camera {
 		 * @brief Caclulates the view matrix
 		 * @return A glm::mat4 representing the camera's view
 		*/
+		// TODO Implement roll
 		glm::mat4 calcCameraView() {
 			glm::vec3 cameraTarget = cameraPos + cameraFront;
 
@@ -37,7 +39,7 @@ class Camera {
 		 * @param right A float representing if the camera should strafe right
 		 * @param deltaTime A float representing the time since last frame in ms
 		*/
-		void updateCameraPosition(const bool forward, const bool backward, const bool left, const bool right, const float deltaTime) {
+		void updateCameraPosition(const bool forward, const bool backward, const bool left, const bool right, const bool up, const bool down, const float deltaTime) {
 			float frameSpeed = cameraSpeed * deltaTime/1000;
 
 			if(forward)
@@ -48,6 +50,10 @@ class Camera {
 				cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * frameSpeed;
 			if(right)
 				cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * frameSpeed;
+			if(up)
+				cameraPos += cameraUp * frameSpeed;
+			if(down)
+				cameraPos -= cameraUp * frameSpeed;
 		}
 		void updateCameraDirection() {
 			glm::vec3 direction(0.f, 0.f, 0.f);
@@ -66,6 +72,9 @@ class Camera {
 				this->pitch =  89.0f;
 			if(this->pitch < -89.0f)
 				this->pitch = -89.0f;
+		}
+		void incRoll(const float offset) {
+			this->roll += offset;
 		}
 		void incYaw(const float offset) {
 			this->yaw += offset;
@@ -88,6 +97,9 @@ class Camera {
 			if(this->pitch < -89.0f)
 				this->pitch = -89.0f;
 		}
+		void setRoll(const float roll) {
+			this->roll = roll;
+		}
 		void setYaw(const float yaw) {
 			this->yaw = yaw;
 		}
@@ -106,6 +118,9 @@ class Camera {
 		float getPitch() {
 			return pitch;
 		}
+		float getRoll() {
+			return roll;
+		}
 		float getYaw() {
 			return yaw;
 		}
@@ -116,6 +131,7 @@ class Camera {
 		float cameraSpeed = 2.5f;
 
 		float pitch;
+		float roll;
 		float yaw;
 		float fov;
 
