@@ -52,7 +52,7 @@ class ShaderTexturedCube : public Shader {
 
 			glClearColor(0.f, 0.f, 0.f, 0.f);	// Initialize clear color
 			GLfloat vertexData[] = {
-				// Vertex Positions    // Normal Verts	  // Texture Positions
+				// Vertex Positions    // Normal Verts    // Texture
 				-0.5f, -0.5f, -0.5f,   0.f,  0.f, -1.f,   0.f, 0.f,
 				 0.5f, -0.5f, -0.5f,   0.f,  0.f, -1.f,   1.f, 0.f,
 				 0.5f,  0.5f, -0.5f,   0.f,  0.f, -1.f,   1.f, 1.f,
@@ -67,12 +67,12 @@ class ShaderTexturedCube : public Shader {
 				-0.5f,  0.5f,  0.5f,   0.f,  0.f,  1.f,   0.f, 1.f,
 				-0.5f, -0.5f,  0.5f,   0.f,  0.f,  1.f,   0.f, 0.f,
 
-				-0.5f,  0.5f,  0.5f,   1.f,  0.f,  0.f,   1.f, 0.f,
-				-0.5f,  0.5f, -0.5f,   1.f,  0.f,  0.f,   1.f, 1.f,
-				-0.5f, -0.5f, -0.5f,   1.f,  0.f,  0.f,   0.f, 1.f,
-				-0.5f, -0.5f, -0.5f,   1.f,  0.f,  0.f,   0.f, 1.f,
-				-0.5f, -0.5f,  0.5f,   1.f,  0.f,  0.f,   0.f, 0.f,
-				-0.5f,  0.5f,  0.5f,   1.f,  0.f,  0.f,   1.f, 0.f,
+				-0.5f,  0.5f,  0.5f,  -1.f,  0.f,  0.f,   1.f, 0.f,
+				-0.5f,  0.5f, -0.5f,  -1.f,  0.f,  0.f,   1.f, 1.f,
+				-0.5f, -0.5f, -0.5f,  -1.f,  0.f,  0.f,   0.f, 1.f,
+				-0.5f, -0.5f, -0.5f,  -1.f,  0.f,  0.f,   0.f, 1.f,
+				-0.5f, -0.5f,  0.5f,  -1.f,  0.f,  0.f,   0.f, 0.f,
+				-0.5f,  0.5f,  0.5f,  -1.f,  0.f,  0.f,   1.f, 0.f,
 
 				 0.5f,  0.5f,  0.5f,   1.f,  0.f,  0.f,   1.f, 0.f,
 				 0.5f,  0.5f, -0.5f,   1.f,  0.f,  0.f,   1.f, 1.f,
@@ -87,7 +87,7 @@ class ShaderTexturedCube : public Shader {
 				 0.5f, -0.5f,  0.5f,   0.f, -1.f,  0.f,   1.f, 0.f,
 				-0.5f, -0.5f,  0.5f,   0.f, -1.f,  0.f,   0.f, 0.f,
 				-0.5f, -0.5f, -0.5f,   0.f, -1.f,  0.f,   0.f, 1.f,
-				
+
 				-0.5f,  0.5f, -0.5f,   0.f,  1.f,  0.f,   0.f, 1.f,
 				 0.5f,  0.5f, -0.5f,   0.f,  1.f,  0.f,   1.f, 1.f,
 				 0.5f,  0.5f,  0.5f,   0.f,  1.f,  0.f,   1.f, 0.f,
@@ -115,37 +115,30 @@ class ShaderTexturedCube : public Shader {
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
 			glEnableVertexAttribArray(2);	// Enable the attribute at index 1
 
-			// Texture 1
-			glGenTextures(1, &texture1);	// Create one texture and assign to 'texture'
-			glBindTexture(GL_TEXTURE_2D, texture1);	// Bind
+			// Base Texture
+			glGenTextures(1, &baseTexture);	// Create one texture and assign to 'texture'
+			glBindTexture(GL_TEXTURE_2D, baseTexture);	// Bind
 
-			// Texture wrapping parameters
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);			// Map to X(S)
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);			// Map to Y(T)
-			// Filtering parameters
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);				// Nearest pixel match for downscale
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);				// Bileanar for upscale
-			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// Linear mipmap for downscale
-
-			if(!FileHandler::loadImage("../assets/wall.jpg", GL_RGB)){
-				std::cout << "Failed to create texture" << std::endl;
+			if(!FileHandler::loadImage("../assets/container.png", GL_RGBA)){
+				std::cout << "Failed to create base texture" << std::endl;
 				return false;
 			}
 
-			// Texture 2
-			glGenTextures(1, &texture2);	// Create one texture and assign to 'texture'
-			glBindTexture(GL_TEXTURE_2D, texture2);	// Bind
+			// Specular Map
+			glGenTextures(1, &specMap);
+			glBindTexture(GL_TEXTURE_2D, specMap);
 
-			// Texture wrapping parameters
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);			// Map to X(S)
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);			// Map to Y(T)
-			// Filtering parameters
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);				// Nearest pixel match for downscale
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);				// Bileanar for upscale
-			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// Linear mipmap for downscale
+			if(!FileHandler::loadImage("../assets/containerSpecMap.png", GL_RGBA)){
+				std::cout << "Failed to create specular map" << std::endl;
+				return false;
+			}
+
+			// Decal
+			glGenTextures(1, &decal);
+			glBindTexture(GL_TEXTURE_2D, decal);
 
 			if(!FileHandler::loadImage("../assets/awesomeface.png", GL_RGBA)){
-				std::cout << "Failed to create texture" << std::endl;
+				std::cout << "Failed to create decal" << std::endl;
 				return false;
 			}
 
@@ -163,8 +156,8 @@ class ShaderTexturedCube : public Shader {
 			model = glm::translate(model, pos);						// Set position
 			model = glm::scale(model, scale);						// Set scale
 			model = glm::rotate(model, rotationDeg, rotationAxis);	// Set rotation
-			//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.f, 0.3f, 0.5f));
-			projection = glm::perspective(glm::radians(fov), 640.f / 480.f, 0.1f, 100.0f);
+			//model = glm::rotate(model, glm::radians(-55.f), glm::vec3(1.f, 0.3f, 0.5f));
+			projection = glm::perspective(glm::radians(fov), 640.f / 480.f, 0.1f, 100.f);
 			view = cameraView;
 
 			glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -252,9 +245,11 @@ class ShaderTexturedCube : public Shader {
 		GLuint getTexture(const int textureIndex) {
 			switch(textureIndex) {
 				case 1:
-					return texture1;
+					return baseTexture;
 				case 2:
-					return texture2;
+					return specMap;
+				case 3:
+					return decal;
 				default:
 					return 0;
 			}
@@ -263,8 +258,9 @@ class ShaderTexturedCube : public Shader {
 	private:
 		GLuint vao = 0;		// OpenGL vertex array object, stores vertex attrib calls
 		GLuint vbo = 0;		// OpenGL vertex buffer object
-		GLuint texture1;	// OpenGL texture object
-		GLuint texture2;	// OpenGL texture object
+		GLuint baseTexture;	// Base texture
+		GLuint specMap;		// Specular map for base texture
+		GLuint decal;		// Decal texture(applied over base)
 
 		GLfloat rotationDeg = 0.f;
 
