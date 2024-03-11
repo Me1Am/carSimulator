@@ -2,6 +2,9 @@
 #include <GL/glew.h>
 #include <SDL2/SDL_opengl.h>
 #include <GL/glu.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 #include <string>
@@ -259,7 +262,7 @@ class Window {
 		}
 		/// Render
 		void render() {
-			glClearColor(0.f, 0.f, 0.f, 0.f);	// Set clear color
+			glClearColor(0.02f, 0.02f, 0.02f, 0.f);	// Set clear color
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// Only update the camera if its not paused
@@ -286,44 +289,81 @@ class Window {
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, cube.getTexture(3));
 
-			cube.setFloat3("cameraPos", camera.getPos());
+			cube.setVec3("cameraPos", camera.getPos());
 
 			// Material Struct
 			cube.setInt("material.baseTexture", 0);	// Base texture
 			cube.setInt("material.specMap", 1);		// Specular Map
 			cube.setInt("material.decal", 2);		// Decal
-			cube.setFloat("material.shininess", 64.f);
+			cube.setFloat("material.shininess", 32.f);
 			cube.setFloat("material.decalBias", 0.f);	// Set to 0.f to remove it
 			
 			// Light Struct
-			cube.setFloat3("light.position", lightSource.getPos());
-			cube.setFloat3("light.ambient", 0.2f, 0.2f, 0.2f);
-			cube.setFloat3("light.diffuse", 0.5f, 0.5f, 0.5f);
+			cube.setFloat3("light.ambient", 0.1f, 0.1f, 0.1f);
+			cube.setFloat3("light.diffuse", 0.8f, 0.8f, 0.8f);
 			cube.setFloat3("light.specular", 1.f, 1.f, 1.f);
+
+			//cube.setFloat3("light.direction", -0.2f, -1.f, -0.3f);	// Directional light
+			
+			// Point Light
+			//cube.setVec3("light.position", lightSource.getPos());
+			cube.setFloat("light.constant", 1.f);
+			cube.setFloat("light.linear", 0.09f);
+			cube.setFloat("light.quadratic", 0.032f);
+
+			// Spotlight
+			cube.setVec3("light.position", camera.getPos());
+			cube.setVec3("light.direction", camera.getDir());
+			cube.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+			cube.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 
 			// Update cube
 			//cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
-			cube.setRotation(0.f, 0.f, 1.f, 0.f);
 			cube.setScale(0.5f, 0.5f, 0.5f);
+			cube.setScale(5.f, 5.f, 5.f);
 			cube.perspective(
 				camera.calcCameraView(), 
 				camera.getFOV()
 			);
 
 			glBindVertexArray(cube.getVAO());
-			glDrawArrays(GL_TRIANGLES, 0, 36);	// Draw
+			glm::vec3 cubePositions[] = {
+				glm::vec3( 0.0f,  0.0f,  0.0f),
+				glm::vec3( 2.0f,  5.0f, -15.0f),
+				glm::vec3(-1.5f, -2.2f, -2.5f),
+				glm::vec3(-3.8f, -2.0f, -12.3f),
+				glm::vec3( 2.4f, -0.4f, -3.5f),
+				glm::vec3(-1.7f,  3.0f, -7.5f),
+				glm::vec3( 1.3f, -2.0f, -2.5f),
+				glm::vec3( 1.5f,  2.0f, -2.5f),
+				glm::vec3( 1.5f,  0.2f, -1.5f),
+				glm::vec3(-1.3f,  1.0f, -1.5f)
+			};
+			for(unsigned int i = 0; i < 10; i++) {
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, cubePositions[i]);
+				float angle = 20.0f * i;
+				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+				cube.setMat4("model", model);
+
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
+
+
+			//glBindVertexArray(cube.getVAO());
+			//glDrawArrays(GL_TRIANGLES, 0, 36);	// Draw
 			
 			// Light Source
-			lightSource.bind();
+			//lightSource.bind();
 
-			lightSource.setPos(1.2f, 1.f, 2.f);
-			lightSource.setScale(0.2f, 0.2f, 0.2f);
-			lightSource.perspective(
-				camera.calcCameraView(), 
-				camera.getFOV()
-			);
-			glBindVertexArray(lightSource.getVAO());
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+			//lightSource.setPos(1.2f, 1.f, 2.f);
+			//lightSource.setScale(0.2f, 0.2f, 0.2f);
+			//lightSource.perspective(
+			//	camera.calcCameraView(), 
+			//	camera.getFOV()
+			//);
+			//glBindVertexArray(lightSource.getVAO());
+			//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 			glUseProgram(0);	// Unbind
 			
