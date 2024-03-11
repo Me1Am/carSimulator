@@ -28,6 +28,7 @@ class Camera {
 			glm::mat4 view = glm::mat4(1.f);
 			//view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
 			view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+			view = glm::rotate(view, roll, glm::vec3(0.f, 0.f, 1.f));	// Apply roll
 
 			return view;
 		}
