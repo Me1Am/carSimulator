@@ -116,6 +116,9 @@ class Camera {
 		glm::vec3 getPos() {
 			return cameraPos;
 		}
+		glm::vec3 getDir() {
+			return cameraFront;
+		}
 		float getPitch() {
 			return pitch;
 		}
