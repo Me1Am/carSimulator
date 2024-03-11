@@ -225,7 +225,14 @@ class Window {
 							break;
 					}
 				}
-				
+				/* Constant Logic */
+				// Update
+				if(keyboard[SDL_SCANCODE_E]){
+					camera.incRoll(0.01f);	// Roll right(increase)
+				} else if(keyboard[SDL_SCANCODE_Q]) {
+					camera.incRoll(-0.01f);	// Roll left(decrease)
+				}
+
 				render();	// Render
 
 				// Framerate Handling
@@ -260,6 +267,8 @@ class Window {
 					keyboard[SDL_SCANCODE_S], 
 					keyboard[SDL_SCANCODE_A], 
 					keyboard[SDL_SCANCODE_D], 
+					keyboard[SDL_SCANCODE_SPACE], 
+					keyboard[SDL_SCANCODE_LCTRL], 
 					deltaTime
 				);
 				camera.updateCameraDirection();
@@ -292,7 +301,7 @@ class Window {
 
 			// Update cube
 			//cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
-			cube.setRotation(0.f, 1.f, 1.f, 1.f);
+			cube.setRotation(0.f, 0.f, 1.f, 0.f);
 			cube.setScale(0.5f, 0.5f, 0.5f);
 			cube.perspective(
 				camera.calcCameraView(), 
