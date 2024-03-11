@@ -24,12 +24,19 @@ struct Light {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+	float constant;
+	float linear;
+	float quadratic;
 };
 
 uniform Material material;
 uniform Light light;
 
 void main() {
+	float distance = length(light.position - FragPos);
+	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));   
+
 	// Ambient Lighting
 	float ambientStrength = 0.1f;
 	vec3 ambient = ambientStrength * light.ambient * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));
@@ -46,7 +53,7 @@ void main() {
 	float spec = pow(max(dot(cameraDir, reflectDir), 0.0), material.shininess);
 	vec3 specular = specStrength * light.specular * spec * vec3(texture(material.specMap, TexCoord));
 
-	vec4 lightResult = vec4((ambient + diffuse + specular), 1.0);
+	vec4 lightResult = vec4(attenuation * (ambient + diffuse + specular), 1.0);
 	
 	FragColor = lightResult;
 }
