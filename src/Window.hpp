@@ -231,11 +231,12 @@ class Window {
 				// Framerate Handling
 				Uint32 currentTime = SDL_GetTicks();
 				deltaTime = currentTime - prevTime;
-				if(SDL_GL_GetSwapInterval() != 1)
+				if(SDL_GL_GetSwapInterval() != 1){
 					SDL_Delay((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0);
-				std::cout << "Frametime: " << deltaTime << 
-							 " | Limited FPS: " << SDL_GetTicks() - prevTime << 
-							 " | Delay Time: " << ((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0) << std::endl;
+					std::cout << "Frametime: " << deltaTime << 
+								" | Limited Frametime: " << SDL_GetTicks() - prevTime << 
+								" | Delay Time: " << ((deltaTime < MIN_FRAME_TIME) ? MIN_FRAME_TIME - deltaTime : 0) << std::endl;
+				}
 				prevTime = SDL_GetTicks();
 			}
 		}
@@ -249,7 +250,7 @@ class Window {
 		}
 		/// Render
 		void render() {
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Set clear color
+			glClearColor(0.f, 0.f, 0.f, 0.f);	// Set clear color
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// Only update the camera if its not paused
@@ -272,23 +273,24 @@ class Window {
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, cube.getTexture(2));
 
-			cube.setInt("texture1", 0);	// Set the first texture as the background/base
-			cube.setInt("texture2", 1);	// Set the second texture as the overlay
-
 			cube.setFloat3("cameraPos", camera.getPos());
 
-			cube.setFloat3("material.ambient", 1.f, 0.5f, 0.31f);	// Set to 1.f for texture colors
-			cube.setFloat3("material.diffuse", 1.f, 0.5f, 0.31f);	// Set to 1.f for texture colors
+			// Material Struct
+			cube.setInt("material.baseTexture", 0);	// Base texture
+			cube.setInt("material.decal", 1);		// Decal
 			cube.setFloat3("material.specular", 0.5f, 0.5f, 0.5f);
 			cube.setFloat("material.shininess", 32.f);
+			cube.setFloat("material.decalBias", 0.f);	// Set to 0.f to remove it
 			
+			// Light Struct
 			cube.setFloat3("light.position", lightSource.getPos());
-			cube.setFloat3("light.ambient",  0.2f, 0.2f, 0.2f);
-			cube.setFloat3("light.diffuse",  0.5f, 0.5f, 0.5f);
-			cube.setFloat3("light.specular", 1.0f, 1.0f, 1.0f); 
+			cube.setFloat3("light.ambient", 0.2f, 0.2f, 0.2f);
+			cube.setFloat3("light.diffuse", 0.5f, 0.5f, 0.5f);
+			cube.setFloat3("light.specular", 1.f, 1.f, 1.f);
 
 			// Update cube
-			cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
+			//cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
+			cube.setRotation(0.f, 1.f, 1.f, 1.f);
 			cube.setScale(0.5f, 0.5f, 0.5f);
 			cube.perspective(
 				camera.calcCameraView(), 
@@ -300,6 +302,7 @@ class Window {
 			
 			// Light Source
 			lightSource.bind();
+
 			lightSource.setPos(1.2f, 1.f, 2.f);
 			lightSource.setScale(0.2f, 0.2f, 0.2f);
 			lightSource.perspective(
