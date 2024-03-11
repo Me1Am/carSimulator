@@ -15,8 +15,8 @@ struct Material {
 	
 	sampler2D baseTexture;	// Base texture
 	sampler2D decal;		// Decal
-	
-	vec3 specular;
+	sampler2D specMap;		// Specular Map
+
 	float shininess;
 	float decalBias;	// "Weight" of the decal
 };
@@ -43,13 +43,15 @@ void main() {
 	vec3 diffuse = light.diffuse * diff * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));	// Use decal
 
 	// Specular Lighting
-	float shininess = 32;
-	float specularStrength = 0.5;
+	float specStrength = 0.5;
 	vec3 cameraDir = normalize(cameraPos - FragPos);
 	vec3 reflectDir = reflect(-lightDir, normalize(Normal));
-	vec3 specular = specularStrength * light.specular * (material.specular * pow(max(dot(cameraDir, reflectDir), 0.0), material.shininess)); 
+	float spec = pow(max(dot(cameraDir, reflectDir), 0.0), material.shininess);
+	//vec3 specular = specStrength * light.specular * spec * vec3(texture(material.specMap, TexCoord));
 
-	vec4 lightResult = vec4((ambient + diffuse + specular), 1);
+	vec3 specular = light.specular * spec * vec3(texture(material.specMap, TexCoord));
+
+	vec4 lightResult = vec4((ambient + diffuse + specular), 1.0);
 	
 	FragColor = lightResult;
 }
