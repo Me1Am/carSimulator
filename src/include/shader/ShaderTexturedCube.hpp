@@ -185,6 +185,14 @@ class ShaderTexturedCube : public Shader {
 			scale = glm::vec3(xScale, yScale, zScale);
 		}
 		/**
+		 * @brief Sets a Mat4 uniform variable's value
+		 * @param field The name of the variable
+		 * @param mat4 The matrix data
+		 */
+		void setMat4(const std::string &field, const glm::mat4 &mat4) {
+			glUniformMatrix4fv(glGetUniformLocation(programID, field.c_str()), 1, GL_FALSE, glm::value_ptr(mat4));
+		}
+		/**
 		 * @brief Sets a Vec4 uniform variable's value
 		 * @param field The name of the variable
 		 * @param value1 The first value of the Vec4
@@ -208,9 +216,7 @@ class ShaderTexturedCube : public Shader {
 		/**
 		 * @brief Sets a Vec3 uniform variable's value
 		 * @param field The name of the variable
-		 * @param value1 The first value of the Vec3
-		 * @param value2 The second value of the Vec3
-		 * @param value3 The third value of the Vec3
+		 * @param vec3 The 3D vector data
 		 */
 		void setFloat3(const std::string &field, const glm::vec3 &vec3) {
 			glUniform3f(glGetUniformLocation(programID, field.c_str()), vec3.x, vec3.y, vec3.z);
