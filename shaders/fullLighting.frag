@@ -83,7 +83,7 @@ void main() {
 	}
 	// Add all spotlights
 	for(int i = 0; i < NUM_SPOTLIGHTS; i++) {
-		//result += calcSpotlight(spotlights[i], normal, FragPos, cameraDir);
+		result += calcSpotlight(spotlights[i], normal, FragPos, cameraDir);
 	}
 
 	vec3 ambient = material.ambient * vec3(texture(material.baseTexture, TexCoord));	// Should be seperate(i think)
@@ -136,7 +136,7 @@ vec3 calcSpotlight(Spotlight light, vec3 normal, vec3 fragPos, vec3 cameraDir) {
 	vec3 lightDir = normalize(light.position - fragPos);
 
 	float theta = dot(lightDir, normalize(-light.direction));	// Angle between lightDir and the light facing vector
-	if(theta > light.outerCutOff) return vec3(0.f, 0.f, 0.f);	// Return as quickly as possible if the pixel is out of the cone
+	if(theta < light.outerCutOff) return vec3(0.f, 0.f, 0.f);	// Return as quickly as possible if the pixel is out of the cone
 	
 	float epsilon   = light.cutOff - light.outerCutOff;							// Cos diff between the inner and outer cones(used for soft edges)
 	float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);	// Intensity of the spotlight(used for soft edges)

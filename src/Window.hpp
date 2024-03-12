@@ -336,8 +336,8 @@ class Window {
 			cube.setInt("material.baseTexture", 0);	// Base texture
 			cube.setInt("material.specMap", 1);		// Specular Map
 			cube.setInt("material.decal", 2);		// Decal
-			cube.setFloat3("material.ambient", 0.1f, 0.1f, 0.1f);
-			cube.setFloat("material.shininess", 32.f);
+			cube.setFloat3("material.ambient", 0.02f, 0.02f, 0.02f);
+			cube.setFloat("material.shininess", 24.f);
 			cube.setFloat("material.decalBias", 0.f);	// Set to 0.f to remove it
 			
 			// Directional light
@@ -350,24 +350,24 @@ class Window {
 			for(int i = 0; i < 4; i++) {
 				cube.setVec3("pointLights["+std::to_string(i)+"].position", pointLightPositions[i]);
 				cube.setFloat3("pointLights["+std::to_string(i)+"].ambient", 0.1f, 0.1f, 0.1f);
-				cube.setFloat3("pointLights["+std::to_string(i)+"].diffuse", 0.15f, 0.15f, 0.15f);
-				cube.setFloat3("pointLights["+std::to_string(i)+"].specular", 0.8f, 0.8f, 0.8f);
+				cube.setFloat3("pointLights["+std::to_string(i)+"].diffuse", 0.2f, 0.2f, 0.2f);
+				cube.setFloat3("pointLights["+std::to_string(i)+"].specular", 0.2f, 0.2f, 0.2f);
 				cube.setFloat("pointLights["+std::to_string(i)+"].constant", 1.f);
 				cube.setFloat("pointLights["+std::to_string(i)+"].linear", 0.09f);
 				cube.setFloat("pointLights["+std::to_string(i)+"].quadratic", 0.032f);
 			}
 
 			// Spotlight
-			//cube.setVec3("spotlights[0].position", camera.getPos());
-			//cube.setVec3("spotlights[0].direction", camera.getDir());
-			//cube.setFloat3("spotlights[0].ambient", 0.1f, 0.1f, 0.1f);
-			//cube.setFloat3("spotlights[0].diffuse", 0.8f, 0.8f, 0.8f);
-			//cube.setFloat3("spotlights[0].specular", 1.f, 1.f, 1.f);
-			//cube.setFloat("spotlights[0].constant", 1.f);
-			//cube.setFloat("spotlights[0].linear", 0.09f);
-			//cube.setFloat("spotlights[0].quadratic", 0.032f);
-			//cube.setFloat("spotlights[0].cutOff", glm::cos(glm::radians(12.5f)));
-			//cube.setFloat("spotlights[0].outerCutOff", glm::cos(glm::radians(17.5f)));
+			cube.setVec3("spotlights[0].position", camera.getPos());
+			cube.setVec3("spotlights[0].direction", camera.getDir());
+			cube.setFloat3("spotlights[0].ambient", 0.1f, 0.1f, 0.1f);
+			cube.setFloat3("spotlights[0].diffuse", 0.8f, 0.8f, 0.8f);
+			cube.setFloat3("spotlights[0].specular", 1.f, 1.f, 1.f);
+			cube.setFloat("spotlights[0].constant", 1.f);
+			cube.setFloat("spotlights[0].linear", 0.09f);
+			cube.setFloat("spotlights[0].quadratic", 0.032f);
+			cube.setFloat("spotlights[0].cutOff", glm::cos(glm::radians(10.5f)));
+			cube.setFloat("spotlights[0].outerCutOff", glm::cos(glm::radians(13.5f)));
 
 			// Update cube
 			//cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
