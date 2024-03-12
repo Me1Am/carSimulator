@@ -279,6 +279,47 @@ class Window {
 				camera.updateCameraDirection();
 			}
 
+			glm::vec3 cubePositions[] = {
+				glm::vec3( 0.0f,  0.0f,  0.0f),
+				glm::vec3( 2.0f,  5.0f, -15.0f),
+				glm::vec3(-1.5f, -2.2f, -2.5f),
+				glm::vec3(-3.8f, -2.0f, -12.3f),
+				glm::vec3( 2.4f, -0.4f, -3.5f),
+				glm::vec3(-1.7f,  3.0f, -7.5f),
+				glm::vec3( 1.3f, -2.0f, -2.5f),
+				glm::vec3( 1.5f,  2.0f, -2.5f),
+				glm::vec3( 1.5f,  0.2f, -1.5f),
+				glm::vec3(-1.3f,  1.0f, -1.5f)
+			};
+			glm::vec3 pointLightPositions[] = {
+				glm::vec3( 0.7f,  0.2f,  2.0f),
+				glm::vec3( 2.3f, -3.3f, -4.0f),
+				glm::vec3(-4.0f,  2.0f, -12.0f),
+				glm::vec3( 0.0f,  0.0f, -3.0f)
+			};
+
+			// Light Source
+			lightSource.bind();
+			glBindVertexArray(lightSource.getVAO());
+
+			lightSource.setFloat3("color", 0.494f, 0.493f, 0.425f);
+			lightSource.setScale(0.2f, 0.2f, 0.2f);
+			for(int i = 0; i < 10; i++) {
+				glm::mat4 model = glm::mat4(1.f);
+				model = glm::translate(model, pointLightPositions[i]);
+				model = glm::rotate(model, glm::radians(0.f), glm::vec3(1.f, 0.3f, 0.5f));
+
+				lightSource.setMat4("model", model);
+
+				lightSource.setPos(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
+				lightSource.perspective(
+					camera.calcCameraView(), 
+					camera.getFOV()
+				);
+
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
+
 			// Cube
 			cube.bind();
 
@@ -295,27 +336,38 @@ class Window {
 			cube.setInt("material.baseTexture", 0);	// Base texture
 			cube.setInt("material.specMap", 1);		// Specular Map
 			cube.setInt("material.decal", 2);		// Decal
+			cube.setFloat3("material.ambient", 0.1f, 0.1f, 0.1f);
 			cube.setFloat("material.shininess", 32.f);
 			cube.setFloat("material.decalBias", 0.f);	// Set to 0.f to remove it
 			
-			// Light Struct
-			cube.setFloat3("light.ambient", 0.1f, 0.1f, 0.1f);
-			cube.setFloat3("light.diffuse", 0.8f, 0.8f, 0.8f);
-			cube.setFloat3("light.specular", 1.f, 1.f, 1.f);
+			// Directional light
+			cube.setFloat3("dirLight.direction", -0.2f, -1.f, -0.3f);
+			cube.setFloat3("dirLight.ambient", 0.1f, 0.1f, 0.1f);
+			cube.setFloat3("dirLight.diffuse", 0.f, 0.f, 0.f);	// Set to zero to turn off
+			cube.setFloat3("dirLight.specular", 1.f, 1.f, 1.f);
 
-			//cube.setFloat3("light.direction", -0.2f, -1.f, -0.3f);	// Directional light
-			
 			// Point Light
-			//cube.setVec3("light.position", lightSource.getPos());
-			cube.setFloat("light.constant", 1.f);
-			cube.setFloat("light.linear", 0.09f);
-			cube.setFloat("light.quadratic", 0.032f);
+			for(int i = 0; i < 4; i++) {
+				cube.setVec3("pointLights["+std::to_string(i)+"].position", pointLightPositions[i]);
+				cube.setFloat3("pointLights["+std::to_string(i)+"].ambient", 0.1f, 0.1f, 0.1f);
+				cube.setFloat3("pointLights["+std::to_string(i)+"].diffuse", 0.15f, 0.15f, 0.15f);
+				cube.setFloat3("pointLights["+std::to_string(i)+"].specular", 0.8f, 0.8f, 0.8f);
+				cube.setFloat("pointLights["+std::to_string(i)+"].constant", 1.f);
+				cube.setFloat("pointLights["+std::to_string(i)+"].linear", 0.09f);
+				cube.setFloat("pointLights["+std::to_string(i)+"].quadratic", 0.032f);
+			}
 
 			// Spotlight
-			cube.setVec3("light.position", camera.getPos());
-			cube.setVec3("light.direction", camera.getDir());
-			cube.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-			cube.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+			//cube.setVec3("spotlights[0].position", camera.getPos());
+			//cube.setVec3("spotlights[0].direction", camera.getDir());
+			//cube.setFloat3("spotlights[0].ambient", 0.1f, 0.1f, 0.1f);
+			//cube.setFloat3("spotlights[0].diffuse", 0.8f, 0.8f, 0.8f);
+			//cube.setFloat3("spotlights[0].specular", 1.f, 1.f, 1.f);
+			//cube.setFloat("spotlights[0].constant", 1.f);
+			//cube.setFloat("spotlights[0].linear", 0.09f);
+			//cube.setFloat("spotlights[0].quadratic", 0.032f);
+			//cube.setFloat("spotlights[0].cutOff", glm::cos(glm::radians(12.5f)));
+			//cube.setFloat("spotlights[0].outerCutOff", glm::cos(glm::radians(17.5f)));
 
 			// Update cube
 			//cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
@@ -327,43 +379,15 @@ class Window {
 			);
 
 			glBindVertexArray(cube.getVAO());
-			glm::vec3 cubePositions[] = {
-				glm::vec3( 0.0f,  0.0f,  0.0f),
-				glm::vec3( 2.0f,  5.0f, -15.0f),
-				glm::vec3(-1.5f, -2.2f, -2.5f),
-				glm::vec3(-3.8f, -2.0f, -12.3f),
-				glm::vec3( 2.4f, -0.4f, -3.5f),
-				glm::vec3(-1.7f,  3.0f, -7.5f),
-				glm::vec3( 1.3f, -2.0f, -2.5f),
-				glm::vec3( 1.5f,  2.0f, -2.5f),
-				glm::vec3( 1.5f,  0.2f, -1.5f),
-				glm::vec3(-1.3f,  1.0f, -1.5f)
-			};
-			for(unsigned int i = 0; i < 10; i++) {
+			for(int i = 0; i < 10; i++) {
 				glm::mat4 model = glm::mat4(1.0f);
 				model = glm::translate(model, cubePositions[i]);
-				float angle = 20.0f * i;
-				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+				model = glm::rotate(model, glm::radians(20.f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+				
 				cube.setMat4("model", model);
 
 				glDrawArrays(GL_TRIANGLES, 0, 36);
 			}
-
-
-			//glBindVertexArray(cube.getVAO());
-			//glDrawArrays(GL_TRIANGLES, 0, 36);	// Draw
-			
-			// Light Source
-			//lightSource.bind();
-
-			//lightSource.setPos(1.2f, 1.f, 2.f);
-			//lightSource.setScale(0.2f, 0.2f, 0.2f);
-			//lightSource.perspective(
-			//	camera.calcCameraView(), 
-			//	camera.getFOV()
-			//);
-			//glBindVertexArray(lightSource.getVAO());
-			//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 			glUseProgram(0);	// Unbind
 			
