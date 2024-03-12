@@ -34,7 +34,7 @@ class ShaderTexturedCube : public Shader {
 			glAttachShader(programID, vertexShader);	// Attach shader to the program
 
 			// Fragment Shader
-			GLuint fragmentShader = FileHandler::compileShader("../shaders/spotlight.frag");
+			GLuint fragmentShader = FileHandler::compileShader("../shaders/fullLighting.frag");
 			glAttachShader(programID, fragmentShader);
 			
 			glLinkProgram(programID);	// Link
