@@ -150,6 +150,14 @@ class ShaderLightSource : public Shader {
 			scale = glm::vec3(xScale, yScale, zScale);
 		}
 		/**
+		 * @brief Sets a Mat4 uniform variable's value
+		 * @param field The name of the variable
+		 * @param mat4 The matrix data
+		 */
+		void setMat4(const std::string &field, const glm::mat4 &mat4) {
+			glUniformMatrix4fv(glGetUniformLocation(programID, field.c_str()), 1, GL_FALSE, glm::value_ptr(mat4));
+		}
+		/**
 		 * @brief Sets a Vec3 uniform variable's value
 		 * @param field The name of the variable
 		 * @param value1 The first value of the Vec3
