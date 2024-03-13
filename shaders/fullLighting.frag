@@ -86,7 +86,7 @@ void main() {
 		result += calcSpotlight(spotlights[i], normal, FragPos, cameraDir);
 	}
 
-	vec3 ambient = material.ambient * vec3(texture(material.baseTexture, TexCoord));	// Should be seperate(i think)
+	vec3 ambient = material.ambient * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));	// Should be seperate(i think)
 	FragColor = vec4(result + ambient, 1.0);
 }
 
@@ -96,15 +96,13 @@ vec3 calcDirLight(DirLight light, vec3 normal, vec3 cameraDir) {
 
 	// Diffuse Shading	
 	float diff = max(dot(normal, lightDir), 0.0);
+	vec3 diffuse = light.diffuse * diff * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));
 
 	// Specular Shading
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(cameraDir, reflectDir), 0.0), material.shininess);
-
-	// Combine
-	vec3 diffuse = light.diffuse * diff * vec3(texture(material.baseTexture, TexCoord));
 	vec3 specular = light.specular * spec * vec3(texture(material.specMap, TexCoord));
-	
+
 	return (diffuse + specular);
 }
 
@@ -114,7 +112,7 @@ vec3 calcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir)
 
 	// Diffuse Shading
 	float diff = max(dot(normal, lightDir), 0.0);
-	vec3 diffuse  = light.diffuse * diff * vec3(texture(material.baseTexture, TexCoord));
+	vec3 diffuse  = light.diffuse * diff * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));
 
 	// Specular Shading
 	vec3 reflectDir = reflect(-lightDir, normal);
@@ -143,7 +141,7 @@ vec3 calcSpotlight(Spotlight light, vec3 normal, vec3 fragPos, vec3 cameraDir) {
 
 	// Diffuse Shading
 	float diff = max(dot(normal, lightDir), 0.0);
-	vec3 diffuse  = light.diffuse * diff * vec3(texture(material.baseTexture, TexCoord));
+	vec3 diffuse  = light.diffuse * diff * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));
 
 	// Specular Shading
 	vec3 reflectDir = reflect(-lightDir, normal);
