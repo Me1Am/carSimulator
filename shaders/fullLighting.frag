@@ -64,9 +64,9 @@ uniform Spotlight spotlights[NUM_SPOTLIGHTS];
 
 uniform vec3 cameraPos;
 
-vec3 calcDirLight(DirLight light, vec3 normal, vec3 cameraDir);
-vec3 calcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir);
-vec3 calcSpotlight(Spotlight light, vec3 normal, vec3 fragPos, vec3 cameraDir);
+vec3 calcDirLight(DirLight light, vec3 normal, vec3 cameraDir, vec3 textureColor, vec3 baseTextureColor);
+vec3 calcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir, vec3 textureColor, vec3 baseTextureColor);
+vec3 calcSpotlight(Spotlight light, vec3 normal, vec3 fragPos, vec3 cameraDir, vec3 textureColor, vec3 baseTextureColor);
 
 void main() {
 	vec3 result = vec3(0.0);  // Output color
@@ -74,50 +74,53 @@ void main() {
 	vec3 cameraDir = normalize(cameraPos - FragPos);	// Calculate camera direction vector
 	vec3 normal = normalize(Normal);						// Calculate normals
 	
+	vec3 textureColor = vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));
+	vec3 baseTextureColor = vec3(texture(material.specMap, TexCoord));
+
 	// Add directional light calculation(only 1)
-	result += calcDirLight(dirLight, normal, cameraDir);
+	result += calcDirLight(dirLight, normal, cameraDir, textureColor, baseTextureColor);
 
 	// Add all point lights
 	for(int i = 0; i < NUM_POINT_LIGHTS; i++) {
-		result += calcPointLight(pointLights[i], normal, FragPos, cameraDir);
+		result += calcPointLight(pointLights[i], normal, FragPos, cameraDir, textureColor, baseTextureColor);
 	}
 	// Add all spotlights
 	for(int i = 0; i < NUM_SPOTLIGHTS; i++) {
-		result += calcSpotlight(spotlights[i], normal, FragPos, cameraDir);
+		result += calcSpotlight(spotlights[i], normal, FragPos, cameraDir, textureColor, baseTextureColor);
 	}
 
-	vec3 ambient = material.ambient * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));	// Should be seperate(i think)
+	vec3 ambient = material.ambient * textureColor;	// Should be seperate(i think)
 	FragColor = vec4(result + ambient, 1.0);
 }
 
 // Calculate a directional light's effect
-vec3 calcDirLight(DirLight light, vec3 normal, vec3 cameraDir) {
+vec3 calcDirLight(DirLight light, vec3 normal, vec3 cameraDir, vec3 textureColor, vec3 baseTextureColor) {
 	vec3 lightDir = normalize(-light.direction);
 
 	// Diffuse Shading	
 	float diff = max(dot(normal, lightDir), 0.0);
-	vec3 diffuse = light.diffuse * diff * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));
+	vec3 diffuse = light.diffuse * diff * textureColor;
 
 	// Specular Shading
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(cameraDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = light.specular * spec * vec3(texture(material.specMap, TexCoord));
+	vec3 specular = light.specular * spec * baseTextureColor;
 
 	return (diffuse + specular);
 }
 
 // Calculate a point light's effect
-vec3 calcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir) {
+vec3 calcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir, vec3 textureColor, vec3 baseTextureColor) {
 	vec3 lightDir = normalize(light.position - fragPos);
 
 	// Diffuse Shading
 	float diff = max(dot(normal, lightDir), 0.0);
-	vec3 diffuse  = light.diffuse * diff * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));
+	vec3 diffuse  = light.diffuse * diff * textureColor;
 
 	// Specular Shading
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(cameraDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = light.specular * spec * vec3(texture(material.specMap, TexCoord));
+	vec3 specular = light.specular * spec * baseTextureColor;
 
 	// Attenuation
 	float distance = length(light.position - fragPos);
@@ -130,7 +133,7 @@ vec3 calcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir)
 }
 
 // Calculate a spotlight's effect
-vec3 calcSpotlight(Spotlight light, vec3 normal, vec3 fragPos, vec3 cameraDir) {
+vec3 calcSpotlight(Spotlight light, vec3 normal, vec3 fragPos, vec3 cameraDir, vec3 textureColor, vec3 baseTextureColor) {
 	vec3 lightDir = normalize(light.position - fragPos);
 
 	float theta = dot(lightDir, normalize(-light.direction));	// Angle between lightDir and the light facing vector
@@ -141,12 +144,12 @@ vec3 calcSpotlight(Spotlight light, vec3 normal, vec3 fragPos, vec3 cameraDir) {
 
 	// Diffuse Shading
 	float diff = max(dot(normal, lightDir), 0.0);
-	vec3 diffuse  = light.diffuse * diff * vec3(mix(texture(material.baseTexture, TexCoord), texture(material.decal, TexCoord), material.decalBias));
+	vec3 diffuse  = light.diffuse * diff * textureColor;
 
 	// Specular Shading
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(cameraDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = light.specular * spec * vec3(texture(material.specMap, TexCoord));
+	vec3 specular = light.specular * spec * baseTextureColor;
 
 	// Attenuation
 	float distance = length(light.position - fragPos);
