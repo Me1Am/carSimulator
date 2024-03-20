@@ -95,7 +95,7 @@ class FileHandler {
 		 * @return A bool representing if the operation was successful
 		 * @note Must create and bind a texture first
 		*/
-		static bool loadImage(const std::string path, const GLuint type) {
+		static bool loadImage(const std::string path) {
 			int width, height, channels;
 			
 			unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, &channels, SOIL_LOAD_AUTO);
@@ -103,7 +103,17 @@ class FileHandler {
 				std::cout << "FileHandler::loadImage(): Failed to load image" << std::endl;
 				return false;
 			}
-			glTexImage2D(GL_TEXTURE_2D, 0, type, width, height, 0, type, GL_UNSIGNED_BYTE, image);
+
+			// Autodetect format
+			GLenum format;
+			if(channels == 1)
+				format = GL_RED;
+			else if(channels == 3)
+				format = GL_RGB;
+			else if(channels == 4)
+				format = GL_RGBA;
+
+			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
 			//glGenerateMipmap(GL_TEXTURE_2D);
 
 			// Texture wrapping parameters
