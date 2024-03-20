@@ -94,6 +94,7 @@ class FileHandler {
 		 * @param path The path to the image file
 		 * @return A bool representing if the operation was successful
 		 * @note Must create and bind a texture first
+		 * @note Auto-detects the image format
 		*/
 		static bool loadImage(const std::string path) {
 			int width, height, channels;
@@ -112,6 +113,36 @@ class FileHandler {
 				format = GL_RGB;
 			else if(channels == 4)
 				format = GL_RGBA;
+
+			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
+			//glGenerateMipmap(GL_TEXTURE_2D);
+
+			// Texture wrapping parameters
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);	// Map to X(S)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);	// Map to Y(T)
+			// Filtering parameters
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);		// Nearest pixel match for downscale
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);		// Bileanar for upscale
+
+			SOIL_free_image_data(image);
+			
+			return true;
+		}
+
+		/** Load Image Into OpenGL Texture
+		 * @param path The path to the image file
+		 * @param format The image format
+		 * @return A bool representing if the operation was successful
+		 * @note Must create and bind a texture first
+		*/
+		static bool loadImage(const std::string path, const GLuint format) {
+			int width, height, channels;
+			
+			unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, &channels, SOIL_LOAD_AUTO);
+			if(!image){
+				std::cout << "FileHandler::loadImage(): Failed to load image" << std::endl;
+				return false;
+			}
 
 			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
 			//glGenerateMipmap(GL_TEXTURE_2D);
