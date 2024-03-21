@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <SDL2/SDL_opengl.h>
 #include <GL/glu.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -10,9 +11,10 @@
 #include <string>
 #include <cmath>
 
-#include "include/shader/ShaderTexturedCube.hpp"
+#include "include/shader/ShaderBase.hpp"
 #include "include/shader/ShaderLightSource.hpp"
 #include "include/Camera.hpp"
+#include "Model.hpp"
 
 class Window {
 	public:
@@ -21,7 +23,8 @@ class Window {
 			this->height = height;
 		}
 		~Window() {
-			cube.freeProgram();
+			baseShader.freeProgram();
+			lightSource.freeProgram();
 			SDL_DestroyWindow(window);		// Delete window
 
 			SDL_Quit();	// Quit SDL
@@ -108,17 +111,24 @@ class Window {
 			glViewport(0, 0, width, height);
 			glEnable(GL_DEPTH_TEST);
 
-			// Load shaders
-			if(!cube.loadProgram()){
-				printf( "Unable to load cube shader!\n" );
+			if(!model.initialize("../assets/backpack/backpack.obj")){
+				std::cerr << "Unable to model" << std::endl;
+				return false;
+			}
+
+			if(!baseShader.loadProgram("../shaders/texture.vert", "../shaders/pureTexture.frag")){
+				std::cerr << "Unable to load model shader" << std::endl;
 				return false;
 			}
 
 			if(!lightSource.loadProgram()){
-				printf( "Unable to load light shader!\n" );
+				std::cerr << "Unable to load lightsource shader" << std::endl;
 				return false;
 			}
-			
+
+			// ../assets/fullLighting.frag
+			// ../assets/light.vert
+
 			return true;
 		}
 		/// Prints the log for the given shader
@@ -165,7 +175,7 @@ class Window {
 								switch(event.window.event) {
 									case SDL_WINDOWEVENT_CLOSE:	// Window receives close command
 										// Destroy objects
-										cube.freeProgram();
+										baseShader.freeProgram();
 										SDL_DestroyWindow(window);
 
 										// Push quit message
@@ -279,18 +289,6 @@ class Window {
 				camera.updateCameraDirection();
 			}
 
-			glm::vec3 cubePositions[] = {
-				glm::vec3( 0.0f,  0.0f,  0.0f),
-				glm::vec3( 2.0f,  5.0f, -15.0f),
-				glm::vec3(-1.5f, -2.2f, -2.5f),
-				glm::vec3(-3.8f, -2.0f, -12.3f),
-				glm::vec3( 2.4f, -0.4f, -3.5f),
-				glm::vec3(-1.7f,  3.0f, -7.5f),
-				glm::vec3( 1.3f, -2.0f, -2.5f),
-				glm::vec3( 1.5f,  2.0f, -2.5f),
-				glm::vec3( 1.5f,  0.2f, -1.5f),
-				glm::vec3(-1.3f,  1.0f, -1.5f)
-			};
 			glm::vec3 pointLightPositions[] = {
 				glm::vec3( 0.7f,  0.2f,  2.0f),
 				glm::vec3( 2.3f, -3.3f, -4.0f),
@@ -299,7 +297,7 @@ class Window {
 			};
 
 			// Light Source
-			lightSource.bind();
+			/*lightSource.bind();
 			glBindVertexArray(lightSource.getVAO());
 
 			lightSource.setFloat3("color", 0.494f, 0.493f, 0.425f);
@@ -318,76 +316,68 @@ class Window {
 				);
 
 				glDrawArrays(GL_TRIANGLES, 0, 36);
-			}
+			}*/
 
 			// Cube
-			cube.bind();
+			baseShader.bind();
 
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, cube.getTexture(1));
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, cube.getTexture(2));
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, cube.getTexture(3));
-
-			cube.setVec3("cameraPos", camera.getPos());
+			/*baseShader.setVec3("cameraPos", camera.getPos());
 
 			// Material Struct
-			cube.setInt("material.baseTexture", 0);	// Base texture
-			cube.setInt("material.specMap", 1);		// Specular Map
-			cube.setInt("material.decal", 2);		// Decal
-			cube.setFloat3("material.ambient", 0.02f, 0.02f, 0.02f);
-			cube.setFloat("material.shininess", 24.f);
-			cube.setFloat("material.decalBias", 0.f);	// Set to 0.f to remove it
+			baseShader.setInt("material.baseTexture", 0);	// Base texture
+			baseShader.setInt("material.specMap", 1);		// Specular Map
+			baseShader.setInt("material.decal", 2);		// Decal
+			baseShader.setFloat3("material.ambient", 0.02f, 0.02f, 0.02f);
+			baseShader.setFloat("material.shininess", 24.f);
+			baseShader.setFloat("material.decalBias", 0.f);	// Set to 0.f to remove it
 			
 			// Directional light
-			cube.setFloat3("dirLight.direction", -0.2f, -1.f, -0.3f);
-			cube.setFloat3("dirLight.ambient", 0.1f, 0.1f, 0.1f);
-			cube.setFloat3("dirLight.diffuse", 0.f, 0.f, 0.f);	// Set to zero to turn off
-			cube.setFloat3("dirLight.specular", 1.f, 1.f, 1.f);
+			baseShader.setFloat3("dirLight.direction", -0.2f, -1.f, -0.3f);
+			baseShader.setFloat3("dirLight.ambient", 0.1f, 0.1f, 0.1f);
+			baseShader.setFloat3("dirLight.diffuse", 0.f, 0.f, 0.f);	// Set to zero to turn off
+			baseShader.setFloat3("dirLight.specular", 1.f, 1.f, 1.f);
 
 			// Point Light
 			for(int i = 0; i < 4; i++) {
-				cube.setVec3("pointLights["+std::to_string(i)+"].position", pointLightPositions[i]);
-				cube.setFloat3("pointLights["+std::to_string(i)+"].ambient", 0.1f, 0.1f, 0.1f);
-				cube.setFloat3("pointLights["+std::to_string(i)+"].diffuse", 0.2f, 0.2f, 0.2f);
-				cube.setFloat3("pointLights["+std::to_string(i)+"].specular", 0.2f, 0.2f, 0.2f);
-				cube.setFloat("pointLights["+std::to_string(i)+"].constant", 1.f);
-				cube.setFloat("pointLights["+std::to_string(i)+"].linear", 0.09f);
-				cube.setFloat("pointLights["+std::to_string(i)+"].quadratic", 0.032f);
+				baseShader.setVec3("pointLights["+std::to_string(i)+"].position", pointLightPositions[i]);
+				baseShader.setFloat3("pointLights["+std::to_string(i)+"].ambient", 0.1f, 0.1f, 0.1f);
+				baseShader.setFloat3("pointLights["+std::to_string(i)+"].diffuse", 0.2f, 0.2f, 0.2f);
+				baseShader.setFloat3("pointLights["+std::to_string(i)+"].specular", 0.2f, 0.2f, 0.2f);
+				baseShader.setFloat("pointLights["+std::to_string(i)+"].constant", 1.f);
+				baseShader.setFloat("pointLights["+std::to_string(i)+"].linear", 0.09f);
+				baseShader.setFloat("pointLights["+std::to_string(i)+"].quadratic", 0.032f);
 			}
 
 			// Spotlight
-			cube.setVec3("spotlights[0].position", camera.getPos());
-			cube.setVec3("spotlights[0].direction", camera.getDir());
-			cube.setFloat3("spotlights[0].ambient", 0.1f, 0.1f, 0.1f);
-			cube.setFloat3("spotlights[0].diffuse", 0.8f, 0.8f, 0.8f);
-			cube.setFloat3("spotlights[0].specular", 1.f, 1.f, 1.f);
-			cube.setFloat("spotlights[0].constant", 1.f);
-			cube.setFloat("spotlights[0].linear", 0.09f);
-			cube.setFloat("spotlights[0].quadratic", 0.032f);
-			cube.setFloat("spotlights[0].cutOff", glm::cos(glm::radians(10.5f)));
-			cube.setFloat("spotlights[0].outerCutOff", glm::cos(glm::radians(13.5f)));
+			baseShader.setVec3("spotlights[0].position", camera.getPos());
+			baseShader.setVec3("spotlights[0].direction", camera.getDir());
+			baseShader.setFloat3("spotlights[0].ambient", 0.1f, 0.1f, 0.1f);
+			baseShader.setFloat3("spotlights[0].diffuse", 0.8f, 0.8f, 0.8f);
+			baseShader.setFloat3("spotlights[0].specular", 0.6f, 0.6f, 0.6f);
+			baseShader.setFloat("spotlights[0].constant", 1.f);
+			baseShader.setFloat("spotlights[0].linear", 0.09f);
+			baseShader.setFloat("spotlights[0].quadratic", 0.032f);
+			baseShader.setFloat("spotlights[0].cutOff", glm::cos(glm::radians(10.5f)));
+			baseShader.setFloat("spotlights[0].outerCutOff", glm::cos(glm::radians(13.5f)));
 
-			// Update cube
-			//cube.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
-			cube.setScale(0.5f, 0.5f, 0.5f);
-			cube.setScale(5.f, 5.f, 5.f);
-			cube.perspective(
+			// Update baseShader
+			//baseShader.setRotation(SDL_GetTicks()/1000.f, 0.5f, 1.f, 0.f);
+			baseShader.setScale(0.5f, 0.5f, 0.5f);
+			baseShader.setScale(5.f, 5.f, 5.f);
+			baseShader.perspective(
+				camera.calcCameraView(), 
+				camera.getFOV()
+			);*/
+
+			baseShader.setRotation(0.f, 1.f, 1.f, 1.f);
+			baseShader.setScale(1.f, 1.f, 1.f);
+			baseShader.setPos(0.f, 0.f, 0.f);
+			baseShader.perspective(
 				camera.calcCameraView(), 
 				camera.getFOV()
 			);
 
-			glBindVertexArray(cube.getVAO());
-			for(int i = 0; i < 10; i++) {
-				glm::mat4 model = glm::mat4(1.0f);
-				model = glm::translate(model, cubePositions[i]);
-				model = glm::rotate(model, glm::radians(20.f * i), glm::vec3(1.0f, 0.3f, 0.5f));
-				
-				cube.setMat4("model", model);
-
-				glDrawArrays(GL_TRIANGLES, 0, 36);
-			}
+			model.draw(baseShader);
 
 			glUseProgram(0);	// Unbind
 			
@@ -416,7 +406,8 @@ class Window {
 		const float MIN_FRAME_TIME = 16.66666667;	// Minimum frame time in ms
 
 		// Objects
-		ShaderTexturedCube cube;
 		ShaderLightSource lightSource;
+		ShaderBase baseShader;
 		Camera camera;
+		Model model;
 };
