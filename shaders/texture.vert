@@ -17,5 +17,5 @@ void main() {
 
     FragPos = vec3(model * vec4(aPos, 1.0));
     Normal = mat3(transpose(inverse(model))) * aNormal;
-    TexCoord = 1.0 - aTexCoord; // Use "1.0 - coord" to reverse the flip image
+    TexCoord = aTexCoord; // Use "1.0 - coord" to reverse the flip image
 }
