@@ -11,16 +11,19 @@ project(carSimulator VERSION 1.0)
 set(SOURCES 
 	"src/main.cpp"
 	"src/Window.hpp"
+	"src/include/Mesh.hpp"
+	"src/include/Model.hpp"
 	"src/include/FileHandler.hpp"
 	"src/include/Vector2D.hpp"
 	"src/include/Car.hpp"
+	"src/include/shader/Shader.hpp"
 )
 
 if(WIN32)
 	set(CMAKE_CXX_COMPILER "C:/Users/JTK6759/Documents/apps/msys2/ucrt64/bin/g++.exe")
 	set(COMPILE_FLAGS="-g -Wall -Dmain=SDL_main")
 
-	add_link_options("-lmingw32" "-lSDL2" "-lSDL2main" "-lSOIL" "-lfreeglut" "-lglew32" "-lopengl32")
+	add_link_options("-lmingw32" "-lSDL2" "-lSDL2main" "-lSOIL" "-lfreeglut" "-lglew32" "-lopengl32" "-lassimp")
 	add_executable(carSimulator)
 
 	target_compile_definitions(carSimulator PUBLIC DEBUG)
@@ -29,12 +32,12 @@ else()
 	set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 	set(COMPILE_FLAGS="-g -Wall")
 	
-	add_link_options("-lSDL2" "-lGLEW" "-lGL" "-lSOIL")
+	add_link_options("-lSDL2" "-lGLEW" "-lGL" "-lSOIL" "-lassimp")
 	
 	add_executable(carSimulator)
 	
 	target_compile_definitions(carSimulator PUBLIC DEBUG)
-	target_link_libraries(carSimulator PUBLIC SDL2 GL GLEW SOIL)
+	target_link_libraries(carSimulator PUBLIC SDL2 GL GLEW SOIL assimp)
 endif()
 
 target_sources(carSimulator PUBLIC ${SOURCES})
