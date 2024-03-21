@@ -24,8 +24,9 @@ class ShaderLightSource : public Shader {
 		/**
 		 * @brief Loads the shader program
 		 * @return a bool if loading worked or not 
+		 * @note Parameters aren't used
 		*/
-		bool loadProgram() {
+		bool loadProgram(const std::string vertPath = "", const std::string fragPath = "") {
 			GLint programSuccess = GL_TRUE;	// Success flag
 			programID = glCreateProgram();	// Create program
 
