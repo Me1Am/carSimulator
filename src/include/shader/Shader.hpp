@@ -26,18 +26,12 @@ class Shader {
 		}
 		/**
 		 * @brief Loads the shader program
-		 * @return a bool if loading worked or not 
-		 * @note Purely virtual function, requires subclass implementation
-		*/
-		virtual bool loadProgram() = 0;
-		/**
-		 * @brief Loads the shader program
 		 * @param vertPath A string representing the path to the vertex shader
 		 * @param fragPath A string representing the path to the fragment shader
 		 * @return a bool if loading worked or not 
 		 * @note Purely virtual function, requires subclass implementation
 		*/
-		virtual bool loadProgram(const std::string vertPath, const std::string fragPath) = 0;
+		virtual bool loadProgram(const std::string vertPath = "", const std::string fragPath = "") = 0;
 		/**
 		 * @brief Deletes the shader program
 		*/
