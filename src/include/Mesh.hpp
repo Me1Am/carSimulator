@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "shader/Shader.hpp"
-#include "FileHandler.hpp"
 
 struct Vertex {
 	glm::vec3 pos;
@@ -19,7 +18,7 @@ struct Vertex {
 };
 
 struct Texture {
-	unsigned int id;
+	GLuint id;
 	
 	std::string type;
 	std::string path;
@@ -43,7 +42,7 @@ class Mesh {
 			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);  
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 
 			// Set vertex positions
 			glEnableVertexAttribArray(0);	
@@ -71,7 +70,7 @@ class Mesh {
 				if(name == "diffuseTexture"){
 					number = std::to_string(diffuseNr);
 					diffuseNr++;
-				} else if(name == "specularTexture"){
+				} else if(name == "specMap"){
 					number = std::to_string(specularNr);
 					specularNr++;
 				}
@@ -79,11 +78,10 @@ class Mesh {
 				shader.setInt(("material." + name + number).c_str(), i);
 				glBindTexture(GL_TEXTURE_2D, textures[i].id);
 			}
-			glActiveTexture(GL_TEXTURE0);
 
-			// draw mesh
+			// Draw
 			glBindVertexArray(vao);
-			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, static_cast<GLuint>(indices.size()), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 		}
 	private:
