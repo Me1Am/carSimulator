@@ -24,7 +24,7 @@ class Model {
 		 * @param path A string pointing to the model location
 		*/
 		Model(const std::string path) {
-			if(initialize(path)){
+			if(!initialize(path)){
 				std::cerr << "Model::Model(): Unable to initialize" << std::endl;
 				return;
 			}
@@ -35,24 +35,23 @@ class Model {
 
 			/* Loads the given model
 			 *  'aiProcess_Triangulate' converts all faces into triagnes
-			 *  'aiProcess_FlipUVs' flips the texture coordinate in the y-axis
 			 *  'aiProcess_GenNormals' creates normals if there are none
+			 *  'aiProcess_FlipUVs' causes issues, dont use
 			 */
 			const aiScene *scene = importer.ReadFile(	
 				path, 
 				aiProcess_Triangulate | 
-				aiProcess_FlipUVs | 
-				aiProcess_GenNormals
+				aiProcess_GenSmoothNormals
 			);
 
 			// Error check
 			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
-				std::cerr << "Model::Model(): " << importer.GetErrorString() << std::endl;
+				std::cerr << "Model::Initialize(): " << importer.GetErrorString() << std::endl;
 				return false;
 			}
 			
 			directory = path.substr(0, path.find_last_of('/'));	// Set model's working directory(assuming textures are there)
-
+			
 			processNode(scene->mRootNode, scene);
 
 			return true;
@@ -67,7 +66,7 @@ class Model {
 			}
 		}
 	private:
-		void processNode(aiNode *node, const aiScene *scene) {
+		void processNode(aiNode* node, const aiScene* scene) {
 			// Process the node's meshes
 			for(GLuint i = 0; i < node->mNumMeshes; i++) {
 				aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
@@ -79,7 +78,7 @@ class Model {
 				processNode(node->mChildren[i], scene);
 			}
 		}
-		Mesh processMesh(aiMesh *mesh, const aiScene *scene) {
+		Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
 			std::vector<Vertex> vertices;
 			std::vector<GLuint> indices;
 			std::vector<Texture> textures;
@@ -128,8 +127,8 @@ class Model {
 			if(mesh->mMaterialIndex >= 0){
 				aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
 				
-				std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-				std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+				std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuseTexture");
+				std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "specMap");
 				
 				textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 				textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
@@ -137,13 +136,11 @@ class Model {
 
 			return Mesh(vertices, indices, textures);
 		}
-		std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {
+		std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {
 			std::vector<Texture> textures;
 			
 			for(GLuint i = 0; i < mat->GetTextureCount(type); i++) {
 				aiString str;
-				Texture texture;
-
 				mat->GetTexture(type, i, &str);	// Gets the texture path('i' being an index to list of them)
 	
 				bool preloaded = false;
@@ -157,6 +154,8 @@ class Model {
 				}
 				// Only go through the load process if it hasn't been loaded before
 				if(!preloaded){
+					Texture texture;
+
 					// Texture load preperation
 					GLuint textureID;
 					glGenTextures(1, &textureID);
@@ -181,4 +180,3 @@ class Model {
 		std::vector<Texture> 	loadedTextures;	// Loaded textures, allows reuse between meshes
 		std::string 			directory;		// The model base directory
 };
-
