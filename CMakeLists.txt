@@ -18,8 +18,6 @@ set(SOURCES
 	"src/include/Car.hpp"
 	"src/include/shader/Shader.hpp"
 )
-add_library(STB_IMAGE "src/include/stb_image.cpp")
-
 
 if(WIN32)
 	set(CMAKE_CXX_COMPILER "C:/Users/JTK6759/Documents/apps/msys2/ucrt64/bin/g++.exe")
